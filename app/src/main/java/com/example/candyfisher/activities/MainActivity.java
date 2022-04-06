@@ -1,10 +1,12 @@
-package com.example.candyfisher;
+package com.example.candyfisher.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
+import com.example.candyfisher.R;
 
 public class MainActivity extends AppCompatActivity {
 
