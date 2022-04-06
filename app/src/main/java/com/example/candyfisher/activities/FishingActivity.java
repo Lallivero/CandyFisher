@@ -51,7 +51,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (previousTilt != tilt) {
             fifo.push(tilt);
         }
-        Log.i("Tilt", String.valueOf(fifo.toString()));
+        Log.i("Tilt", fifo.toString());
 
     }
 
