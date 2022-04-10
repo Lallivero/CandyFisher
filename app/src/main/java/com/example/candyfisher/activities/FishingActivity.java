@@ -11,15 +11,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.example.candyfisher.R;
+import com.example.candyfisher.interfaces.CollectionAccessContract;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
 import com.example.candyfisher.utils.Utils;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 
-
-public class FishingActivity extends AppCompatActivity implements SensorEventListener {
+public class FishingActivity extends AppCompatActivity implements SensorEventListener, CollectionAccessContract.CollectionView {
 
 
     private SensorManager sensorManager;
@@ -73,6 +71,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+    public void initialiseView() {
 
     }
 }

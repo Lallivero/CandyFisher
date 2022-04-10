@@ -8,7 +8,7 @@
     tools:context=".activities.MainActivity">
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/imageView_mascot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="@string/happy_candy_description"
@@ -21,7 +21,7 @@
         app:srcCompat="@drawable/wafer_roll100_64_generated" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="112dp"
@@ -35,12 +35,24 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/playButton"
+        android:id="@+id/button_play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="108dp"
         android:onClick="toFishingActivity"
         android:text="@string/go_fish_text"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button_collection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="60dp"
+        android:onClick="toCollection"
+        android:text="@string/text_collection"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
