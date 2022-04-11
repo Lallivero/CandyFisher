@@ -58,6 +58,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         previousTilt = tilt;
         if (filteredValues[0] > tiltValue && filteredValues[0] > Math.abs(filteredValues[1])) {
             tilt = Tilt.LEFT;
+//        }
+//        else if(filteredValues[1] > tiltValue && filteredValues[2] > 2){
+//            tilt = Tilt.LEANINGFORWARDS;
         } else if (filteredValues[0] < -tiltValue && Math.abs(filteredValues[0]) > Math.abs(filteredValues[1])) {
             tilt = Tilt.RIGHT;
         } else if (filteredValues[1] > tiltValue && filteredValues[1] > Math.abs(filteredValues[0])) {

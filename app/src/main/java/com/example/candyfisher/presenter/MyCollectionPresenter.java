@@ -19,7 +19,6 @@ public class MyCollectionPresenter implements CollectionAccessContract.Collectio
     public MyCollectionPresenter(Context context, CollectionAccessContract.CollectionView view) {
         myContext = context;
         myCollectionView = view;
-
     }
 
     @Override
