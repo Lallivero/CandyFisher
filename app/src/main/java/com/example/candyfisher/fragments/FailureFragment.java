@@ -14,6 +14,8 @@ import com.example.candyfisher.R;
  * A simple {@link Fragment} subclass.
  * Use the {@link FailureFragment#newInstance} factory method to
  * create an instance of this fragment.
+ *
+ * Fragment for when a catch is unsuccesfull
  */
 public class FailureFragment extends Fragment {
 

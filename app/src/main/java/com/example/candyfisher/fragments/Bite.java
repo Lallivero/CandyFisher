@@ -15,7 +15,7 @@ import com.example.candyfisher.R;
  * Use the {@link Bite#newInstance} factory method to
  * create an instance of this fragment.
  *
- * Detta fragment
+ * Fragment for when a catch is succesfull
  */
 public class Bite extends Fragment {
 

@@ -37,6 +37,9 @@ public class SuccessFragment extends Fragment {
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment SuccessFragment.
+     *
+     * Fragment for when a catch is succesfull
+     *
      */
     // TODO: Rename and change types and number of parameters
     public static SuccessFragment newInstance(String param1, String param2) {

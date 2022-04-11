@@ -16,6 +16,8 @@ import android.widget.ImageView;
  * A simple {@link Fragment} subclass.
  * Use the {@link FailedThrow#newInstance} factory method to
  * create an instance of this fragment.
+ *
+ * Fragment for when the wrong movement has been done
  */
 public class FailedThrow extends Fragment {
 
