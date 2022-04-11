@@ -97,6 +97,7 @@
     <string name="text_collection">Collection</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="failure_fragment">Failure Fragment</string>
+    <string name="hello_blank_fragment">Blank</string>
 
 
 </resources>

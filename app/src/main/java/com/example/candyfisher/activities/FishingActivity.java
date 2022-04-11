@@ -1,6 +1,10 @@
 package com.example.candyfisher.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -9,15 +13,17 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.candyfisher.R;
+import com.example.candyfisher.fragments.FailureFragment;
 import com.example.candyfisher.interfaces.CollectionAccessContract;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
 import com.example.candyfisher.utils.Utils;
 
 
-public class FishingActivity extends AppCompatActivity implements SensorEventListener, CollectionAccessContract.CollectionView {
+public class FishingActivity extends AppCompatActivity implements SensorEventListener, CollectionAccessContract.CollectionView  {
 
 
     private SensorManager sensorManager;
@@ -29,6 +35,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private Tilt previousTilt;
 
     private Fifo fifo = new Fifo();
+
+    private boolean display = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +57,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (previousTilt != tilt) {
             fifo.push(tilt);
         }
-        Log.i("Tilt", fifo.toString());
+//        Log.i("Tilt", fifo.toString());
 
     }
 
@@ -79,6 +87,19 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     @Override
     public void initialiseView() {
+
+    }
+
+    public void onClick(View view){
+        loadFragment(new FailureFragment());
+    }
+
+    private void loadFragment(Fragment fragment) {
+FailureFragment failureFragment = new FailureFragment().newInstance("a","b");
+FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction =   fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.fragment_container, failureFragment).addToBackStack(null).commit();
+        display = true;
 
     }
 }
