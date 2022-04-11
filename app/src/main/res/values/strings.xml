@@ -98,6 +98,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="failure_fragment">Failure Fragment</string>
     <string name="hello_blank_fragment">Blank</string>
-
+    <string name="candy_collection">Candy Collection</string>
+    <string name="restart">Play Again!</string>
 
 </resources>
