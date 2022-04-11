@@ -30,6 +30,5 @@ public class MainActivity extends AppCompatActivity implements CollectionAccessC
 
     @Override
     public void initialiseView() {
-
     }
 }
