@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.example.candyfisher.R;
@@ -20,7 +21,7 @@ import com.example.candyfisher.R;
  *
  * Fragment for when a catch is unsuccesfull
  */
-public class FailureFragment extends Fragment {
+public class FailureFragment extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

@@ -100,6 +100,5 @@ FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction =   fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, failureFragment).addToBackStack(null).commit();
         display = true;
-
     }
 }
