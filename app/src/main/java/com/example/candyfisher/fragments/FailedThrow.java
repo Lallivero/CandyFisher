@@ -2,6 +2,7 @@ package com.example.candyfisher.fragments;
 
 import android.os.Bundle;
 
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -19,7 +20,7 @@ import android.widget.ImageView;
  *
  * Fragment for when the wrong movement has been done
  */
-public class FailedThrow extends Fragment {
+public class FailedThrow extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

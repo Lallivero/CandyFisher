@@ -4,8 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginHorizontal="100dp"
+    android:layout_marginVertical="100dp"
     android:background="#FFFFFF"
-    tools:context=".fragments.FailedThrow">
+    tools:context=".fragments.FailedThrow"
+    >
 
     <!-- TODO: Update blank fragment layout -->
 
