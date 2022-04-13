@@ -7,7 +7,7 @@ public class Fifo extends LinkedList<Tilt> {
 
     public void push(Tilt t){
         addLast(t);
-        if(size() > 3) {
+        if(size() > 2) {
             removeFirst();
         }
     }

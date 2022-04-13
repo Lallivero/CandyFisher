@@ -1,6 +1,7 @@
 package com.example.candyfisher.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,6 +12,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,24 +21,23 @@ import com.example.candyfisher.R;
 import com.example.candyfisher.fragments.FailedThrow;
 import com.example.candyfisher.fragments.FailureFragment;
 import com.example.candyfisher.interfaces.CollectionAccessContract;
+import com.example.candyfisher.interfaces.GameLogicContract;
+import com.example.candyfisher.presenter.MyGamePresenter;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
 import com.example.candyfisher.utils.Utils;
 
 
-public class FishingActivity extends AppCompatActivity implements SensorEventListener, CollectionAccessContract.CollectionView {
-
+public class FishingActivity extends AppCompatActivity implements SensorEventListener, GameLogicContract.GameLogicView {
+    private static final String TAG = "FishingActivity";
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
+    private MyGamePresenter myGamePresenter;
 
-    private float[] filteredValues;
-    private Tilt tilt;
-    private Tilt previousTilt;
 
-    private Fifo fifo = new Fifo();
-
+    private ConstraintLayout mConstraintLayout;
     private boolean display = false;
 
     @Override
@@ -48,46 +49,41 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        mConstraintLayout = findViewById(R.id.fishing_layout);
+        myGamePresenter = new MyGamePresenter();
+        myGamePresenter.initPresenter();
     }
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        filteredValues = Utils.lowPassFilter(sensorEvent.values.clone(), filteredValues);
+        myGamePresenter.setValues(sensorEvent.values.clone());
 
-        setTilt();
-        if (previousTilt != tilt) {
-            fifo.push(tilt);
-        }
-//        Log.i("Tilt", fifo.toString());
+        myGamePresenter.setTilt();
 
-    }
-
-    private void setTilt() {
-        float tiltValue = 3f;
-        previousTilt = tilt;
-        if (filteredValues[0] > tiltValue && filteredValues[0] > Math.abs(filteredValues[1])) {
-            tilt = Tilt.LEFT;
-//        }
-//        else if(filteredValues[1] > tiltValue && filteredValues[2] > 2){
-//            tilt = Tilt.LEANINGFORWARDS;
-        } else if (filteredValues[0] < -tiltValue && Math.abs(filteredValues[0]) > Math.abs(filteredValues[1])) {
-            tilt = Tilt.RIGHT;
-        } else if (filteredValues[1] > tiltValue && filteredValues[1] > Math.abs(filteredValues[0])) {
-            tilt = Tilt.UPRIGHT;
-        } else if (filteredValues[1] < -tiltValue && Math.abs(filteredValues[1]) > Math.abs(filteredValues[0])) {
-            tilt = Tilt.UPSIDEDOWN;
+        if (myGamePresenter.checkThrow()) {
+//            Log.i(TAG, "Accepted");
+            startFishing();
         } else {
-            tilt = Tilt.FACEUP;
+            stopFishing();
+//            Log.i(TAG, "Not accepted");
         }
+
     }
+
+    private void stopFishing() {
+        mConstraintLayout.setBackground(getDrawable(R.drawable.fishing));
+    }
+
+    private void startFishing() {
+        mConstraintLayout.setBackground(getDrawable(R.drawable.not_fishing));
+    }
+
+
+
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
-
-    }
-
-    @Override
-    public void initialiseView() {
 
     }
 
@@ -101,5 +97,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, failureFragment).addToBackStack(null).commit();
         display = true;
+    }
+
+    @Override
+    public void initView() {
+
     }
 }
