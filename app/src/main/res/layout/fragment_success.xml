@@ -11,4 +11,12 @@
         android:layout_height="match_parent"
         android:text="" />
 
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/candy"
+        android:text="Candy"
+        android:textSize="30sp" />
+
 </FrameLayout>
