@@ -15,7 +15,7 @@ import com.example.candyfisher.utils.Utils;
 
 import java.lang.ref.WeakReference;
 import java.util.Random;
-
+@Deprecated
 public class MyGamePresenter implements GameLogicContract.GameLogicPresenter {
     private static final String TAG = "MyGamePresenter";
     private float[] values;

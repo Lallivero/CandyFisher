@@ -1,7 +1,7 @@
 package com.example.candyfisher.interfaces;
 
 import com.example.candyfisher.models.CollectionListData;
-
+@Deprecated
 public interface CollectionAccessContract {
     interface CollectionView {
         void initialiseView();

@@ -6,23 +6,31 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.candyfisher.R;
-import com.example.candyfisher.interfaces.CollectionAccessContract;
+import com.example.candyfisher.interfaces.OnItemClickListener;
+
+import java.util.ArrayList;
 
 
 public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAdapter.ViewHolder> {
 
-    protected CollectionAccessContract.CollectionPresenter myCollectionPresenter;
-    public CollectionListAdapter(CollectionAccessContract.CollectionPresenter presenter) {
 
-        myCollectionPresenter = presenter;
+    //    protected CollectionAccessContract.CollectionPresenter myCollectionPresenter;
+    private final ArrayList<CollectionListData> collection;
+    private final OnItemClickListener myCallback;
 
+
+    public CollectionListAdapter(ArrayList<CollectionListData> collection, OnItemClickListener callback) {
+
+//        myCollectionPresenter = presenter;
+        this.collection = collection;
+        myCallback = callback;
     }
+
 
     @NonNull
     @Override
@@ -34,16 +42,18 @@ public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAd
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-        holder.textView.setText(myCollectionPresenter.getItemDescription(position));
-        holder.textView2.setText((myCollectionPresenter.getCollectedStatus(position) ? "Collected" : "Not Collected"));
-        holder.imageView.setImageResource(myCollectionPresenter.getImageId(position));
-        holder.relativeLayout.setOnClickListener(view -> myCollectionPresenter.onClick(position));
+        CollectionListData item = collection.get(position);
+        holder.textView.setText(item.getDescription());
+        holder.textView2.setText((item.getCollected() ? "Collected" : "Not Collected"));
+        holder.imageView.setImageResource(item.getImageId());
+//        holder.itemView.setOnClickListener(myCallback.onClick(position));
+        holder.relativeLayout.setOnClickListener(view -> myCallback.onClick(holder.getAdapterPosition()));
     }
-//Toast.makeText(view.getContext(), "Click on item: " + listData.getDescription(),Toast.LENGTH_LONG ).show()
+
+    //Toast.makeText(view.getContext(), "Click on item: " + listData.getDescription(),Toast.LENGTH_LONG ).show()
     @Override
     public int getItemCount() {
-        return myCollectionPresenter.getCollectionSize();
+        return collection.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -54,10 +64,10 @@ public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAd
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.imageView = (ImageView) itemView.findViewById(R.id.imageView);
-            this.textView = (TextView) itemView.findViewById(R.id.textView);
-            this.textView2 = (TextView) itemView.findViewById(R.id.textView2);
-            relativeLayout = (RelativeLayout) itemView.findViewById(R.id.relativeLayout);
+            this.imageView = itemView.findViewById(R.id.imageView);
+            this.textView = itemView.findViewById(R.id.textView);
+            this.textView2 = itemView.findViewById(R.id.textView2);
+            relativeLayout = itemView.findViewById(R.id.relativeLayout);
         }
     }
 }

@@ -8,7 +8,7 @@ import com.example.candyfisher.models.SharedPreferenceAccess;
 import com.example.candyfisher.utils.Candies;
 
 import java.util.Locale;
-
+@Deprecated
 public class MyCollectionPresenter implements CollectionAccessContract.CollectionPresenter {
     private final Context myContext;
     private final CollectionAccessContract.CollectionView myCollectionView;
@@ -32,7 +32,7 @@ public class MyCollectionPresenter implements CollectionAccessContract.Collectio
             String capitalisedCandyName = Candies.values()[i].toString();
             String formattedCandyName = capitalisedCandyName.charAt(0) + capitalisedCandyName.substring(1).toLowerCase(Locale.ROOT);
 
-            collectionListData[i] = new CollectionListData(formattedCandyName, android.R.drawable.ic_dialog_email, SharedPreferenceAccess.getCandy(i));
+            collectionListData[i] = new CollectionListData(formattedCandyName, android.R.drawable.ic_dialog_email, SharedPreferenceAccess.isCandyCollected(i));
         }
         myCollectionView.initialiseView();
     }

@@ -1,7 +1,7 @@
 package com.example.candyfisher.interfaces;
 
 import android.content.Context;
-
+@Deprecated
 public interface GameLogicContract {
     interface GameLogicView{
         void initView();
