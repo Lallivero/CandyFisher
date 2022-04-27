@@ -1,19 +1,10 @@
 package com.example.candyfisher.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-
 import android.content.Context;
-import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -21,18 +12,20 @@ import android.os.Vibrator;
 import android.util.Log;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.example.candyfisher.R;
 import com.example.candyfisher.fragments.FailedThrow;
 import com.example.candyfisher.fragments.FailureFragment;
 import com.example.candyfisher.fragments.SuccessFragment;
-import com.example.candyfisher.interfaces.CollectionAccessContract;
 import com.example.candyfisher.interfaces.GameLogicContract;
 import com.example.candyfisher.presenter.MyGamePresenter;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
-import com.example.candyfisher.utils.Utils;
-
-import java.util.Random;
 
 
 public class FishingActivity extends AppCompatActivity implements SensorEventListener, GameLogicContract.GameLogicView {
@@ -48,7 +41,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
-    private MyGamePresenter myGamePresenter;
+//    private MyGamePresenter myGamePresenter;
 
 
     private ConstraintLayout mConstraintLayout;
@@ -74,8 +67,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mConstraintLayout = findViewById(R.id.fishing_layout);
-        myGamePresenter = new MyGamePresenter();
-        myGamePresenter.initPresenter(this, this);
+//        myGamePresenter = new MyGamePresenter();
+//        myGamePresenter.initPresenter(this, this);
     }
 
     public void setTilt() {

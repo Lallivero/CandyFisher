@@ -1,19 +1,16 @@
 package com.example.candyfisher.viewModels;
 
 import android.app.Application;
-import android.content.Context;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.example.candyfisher.models.CollectionListData;
 import com.example.candyfisher.models.SharedPreferenceAccess;
 import com.example.candyfisher.utils.Candies;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class CollectionViewModel extends AndroidViewModel {
@@ -52,13 +49,6 @@ public class CollectionViewModel extends AndroidViewModel {
         return Objects.requireNonNull(collectionListData.getValue()).get(index).getImageId();
     }
 
-
-    public void onClick(int index) {
-
-        swapCollected(index);
-
-
-    }
 
     public int getCollectionSize() {
         return Objects.requireNonNull(collectionListData.getValue()).size();
