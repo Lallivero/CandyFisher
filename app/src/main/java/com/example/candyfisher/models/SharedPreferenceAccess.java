@@ -11,7 +11,10 @@ public class SharedPreferenceAccess {
     private static Candies[] candies;
 
     public static void initialise(Context context) {
-        sharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
+        if(sharedPreferences == null){
+            sharedPreferences = context.getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE);
+        }
+
         candies = new Candies[Candies.values().length];
         System.arraycopy(Candies.values(), 0, candies, 0, Candies.values().length);
     }
