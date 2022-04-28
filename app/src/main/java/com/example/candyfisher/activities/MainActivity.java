@@ -7,16 +7,14 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.candyfisher.R;
-import com.example.candyfisher.interfaces.CollectionAccessContract;
-import com.example.candyfisher.models.SharedPreferenceAccess;
 
-public class MainActivity extends AppCompatActivity implements CollectionAccessContract.CollectionView {
+public class MainActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initialiseView();
+
     }
     public void toFishingActivity(View view) {
         Intent intent = new Intent(this, FishingActivity.class);
@@ -28,7 +26,4 @@ public class MainActivity extends AppCompatActivity implements CollectionAccessC
         startActivity(intent);
     }
 
-    @Override
-    public void initialiseView() {
-    }
 }

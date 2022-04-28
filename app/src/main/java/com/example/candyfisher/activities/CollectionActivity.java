@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class CollectionActivity extends AppCompatActivity {
 
 
-    //    CollectionAccessContract.CollectionPresenter myCollectionPresenter;
     private CollectionViewModel myCollectionViewModel;
 
     @Override
@@ -28,8 +27,7 @@ public class CollectionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_collection);
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData().observe(this, this::initialiseView);
-//        myCollectionPresenter = new MyCollectionPresenter(this, this);
-//        myCollectionPresenter.initialisePresenter();
+
     }
 
     public void increaseCandy(View view) {
@@ -39,7 +37,8 @@ public class CollectionActivity extends AppCompatActivity {
     public void initialiseView(ArrayList<CollectionListData> collectionListData) {
 
         RecyclerView recyclerView = findViewById(R.id.collection_view);
-        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData, index -> myCollectionViewModel.swapCollected(index));
+        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData,
+                index -> myCollectionViewModel.swapCollected(index));
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(collectionListAdapter);

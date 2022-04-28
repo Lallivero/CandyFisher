@@ -9,11 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -21,35 +21,23 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.candyfisher.R;
 import com.example.candyfisher.fragments.FailedThrow;
 import com.example.candyfisher.fragments.FailureFragment;
-import com.example.candyfisher.fragments.SuccessFragment;
-import com.example.candyfisher.interfaces.GameLogicContract;
-import com.example.candyfisher.presenter.MyGamePresenter;
-import com.example.candyfisher.utils.Fifo;
-import com.example.candyfisher.utils.Tilt;
+import com.example.candyfisher.models.FishingGameModel;
 
 
-public class FishingActivity extends AppCompatActivity implements SensorEventListener, GameLogicContract.GameLogicView {
+public class FishingActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "FishingActivity";
 
     private float[] values;
-    private Tilt previousTilt;
-    private Tilt tilt;
-
-    private Fifo fifo;
-    private boolean fishing = false;
-
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
-
-//    private MyGamePresenter myGamePresenter;
 
 
-    private ConstraintLayout mConstraintLayout;
+    private FishingGameModel model;
+
     private boolean display = false;
-    private long fishingStartTime;
-    private boolean bite;
-    private long biteTime;
-    private boolean cought;
+
+
+    private RelativeLayout mRelativeLayout;
+    private ImageView mImageView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,48 +48,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             values = new float[3];
         }
 
-        fifo = new Fifo();
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-        mConstraintLayout = findViewById(R.id.fishing_layout);
-//        myGamePresenter = new MyGamePresenter();
-//        myGamePresenter.initPresenter(this, this);
-    }
+        mRelativeLayout = findViewById(R.id.fishing_layout);
+        mImageView = findViewById(R.id.background_image);
+        model = new FishingGameModel();
 
-    public void setTilt() {
-        float tiltValue = 3f;
-        previousTilt = tilt;
-        if (values[0] > tiltValue && values[0] > Math.abs(values[1])) {
-            tilt = Tilt.LEFT;
-//        }
-//        else if(filteredValues[1] > tiltValue && filteredValues[2] > 2){
-//            tilt = Tilt.LEANINGFORWARDS;
-        } else if (values[0] < -tiltValue && Math.abs(values[0]) > Math.abs(values[1])) {
-            tilt = Tilt.RIGHT;
-        } else if (values[1] > tiltValue && values[1] > Math.abs(values[0])) {
-            tilt = Tilt.UPRIGHT;
-        } else if (values[1] < -tiltValue && Math.abs(values[1]) > Math.abs(values[0])) {
-            tilt = Tilt.UPSIDEDOWN;
-        } else {
-            tilt = Tilt.FACEUP;
-        }
-        if (tilt != previousTilt) {
-            fifo.push(tilt);
-        }
-    }
-
-    public boolean checkThrow() {
-        Fifo key1 = new Fifo();
-        key1.push(Tilt.UPRIGHT);
-        key1.push(Tilt.FACEUP);
-        Fifo key2 = new Fifo();
-        key2.push(Tilt.UPSIDEDOWN);
-        key2.push(Tilt.FACEUP);
-//        Log.d(TAG, String.valueOf(fifo));
-        return (fifo.equals(key2) || fifo.equals(key1));
     }
 
 
@@ -117,63 +72,29 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
 
-//        myGamePresenter.setValues(sensorEvent.values.clone());
-        values = sensorEvent.values.clone();
-        setTilt();
+        model.setValues(sensorEvent.values.clone());
 
-        if (checkThrow()) {
-            fishing = true;
-            changeBackground();
-            fifo.clear();
-            tilt = null;
-            previousTilt = null;
-            fishingStartTime = System.currentTimeMillis();
-        }else if(checkCatch() && bite){
-            Log.i(TAG, "onSensorChanged: in here now");
-            cought = true;
+        if (model.checkSuccessfulThrow()) {
+            model.startFishing();
+            changeBackground(model.getCurrentlyFishing());
+        } else if (model.checkSuccessfulCatch()) {
+            model.setCaught(true);
         }
 
-        if (!bite && fishing && System.currentTimeMillis() - fishingStartTime > 2000) {
-            biteTime = System.currentTimeMillis();
+
+        if (model.biteEligible()) {
+            model.bite();
             vibrate();
-            bite = true;
-        }else if(cought){
-            Log.i(TAG, "onSensorChanged: Caught a fish!");
-            fishing = false;
-            bite = false;
-            cought = false;
-            loadFragment(new SuccessFragment());
-            changeBackground();
-        }else if(bite && System.currentTimeMillis() - biteTime > 2000){
-            fishing = false;
-            bite = false;
-            changeBackground();
+        } else if (model.getCaught()) {
+            model.stopFishing();
+            changeBackground(model.getCurrentlyFishing());
+        } else if (model.pastBiteTime()) {
+            model.stopFishing();
+            changeBackground(model.getCurrentlyFishing());
         }
 
     }
 
-    private boolean checkCatch() {
-        Fifo key1 = new Fifo();
-        key1.push(Tilt.FACEUP);
-        key1.push(Tilt.UPRIGHT);
-//        Fifo key2 = new Fifo();
-//        key2.push(Tilt.UPSIDEDOWN);
-//        key2.push(Tilt.FACEUP);
-//        Log.d(TAG, String.valueOf(fifo));
-        return (fifo.equals(key1));
-    }
-
-//    private void stopFishing() {
-//        myGamePresenter.stopFishing();
-//    }
-
-//    private void startFishing() {
-//        myGamePresenter.startFishing();
-//    }
-
-    private void stopFishing() {
-        fishing = false;
-    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
@@ -192,27 +113,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         display = true;
     }
 
-    @Override
-    public void initView() {
 
-    }
-
-    @Override
     public void changeBackground(boolean fishing) {
-
-    }
-
-
-    public void changeBackground() {
-
-        if (!fishing) {
-            Log.d(TAG, "changeBackground: " + String.valueOf(fishing));
-//            mConstraintLayout.setBackgroundColor(Color.parseColor("#FFFFFFFF"));
-            mConstraintLayout.setBackground(getDrawable(R.drawable.fishing));
+        if (fishing) {
+            mImageView.setImageResource(R.drawable.fishing);
+//            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.not_fishing));
         } else {
-            Log.d(TAG, "changeBackground: " + String.valueOf(fishing));
-//            mConstraintLayout.setBackgroundColor(Color.parseColor("#FF000000"));
-            mConstraintLayout.setBackground(getDrawable(R.drawable.not_fishing));
+            mImageView.setImageResource(R.drawable.not_fishing);
+//            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.fishing));
         }
     }
+
 }

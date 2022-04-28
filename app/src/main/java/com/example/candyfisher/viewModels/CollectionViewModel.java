@@ -2,10 +2,12 @@ package com.example.candyfisher.viewModels;
 
 import android.app.Application;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.candyfisher.R;
 import com.example.candyfisher.models.CollectionListData;
 import com.example.candyfisher.models.SharedPreferenceAccess;
 import com.example.candyfisher.utils.Candies;
@@ -39,11 +41,15 @@ public class CollectionViewModel extends AndroidViewModel {
         for (int i = 0; i < candies.size(); i++) {
             String capitalisedCandyName = Candies.values()[i].toString();
             String formattedCandyName = capitalisedCandyName.charAt(0) + capitalisedCandyName.substring(1).toLowerCase();
-            collection.add(new CollectionListData(formattedCandyName, android.R.drawable.ic_dialog_email, SharedPreferenceAccess.isCandyCollected(i)));
+            String imageName = "candy" + (i+1);
+            collection.add(new CollectionListData(formattedCandyName, getImageFromString(imageName), SharedPreferenceAccess.isCandyCollected(i)));
         }
         return collection;
     }
 
+    private int getImageFromString(String imageName) {
+        return getApplication().getResources().getIdentifier(imageName, "drawable", getApplication().getPackageName());
+    }
 
     public int getImageId(int index) {
         return Objects.requireNonNull(collectionListData.getValue()).get(index).getImageId();
