@@ -1,7 +1,6 @@
 package com.example.candyfisher.models;
 
 
-
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
 
@@ -38,7 +37,7 @@ public class FishingGameModel {
         fishingStartTime = System.currentTimeMillis();
     }
 
-    public void stopFishing(){
+    public void stopFishing() {
         currentlyFishing = false;
         bite = false;
         caught = false;
@@ -59,20 +58,21 @@ public class FishingGameModel {
         return !bite && currentlyFishing && System.currentTimeMillis() - fishingStartTime > 2000;
     }
 
-    public boolean pastBiteTime(){
+    public boolean pastBiteTime() {
         return bite && System.currentTimeMillis() - biteTime > 2000;
     }
 
-    public boolean getCurrentlyFishing(){
+    public boolean getCurrentlyFishing() {
         return currentlyFishing;
     }
 
     public void bite() {
         biteTime = System.currentTimeMillis();
         bite = true;
+        clearTilts();
     }
 
-    public boolean getCaught(){
+    public boolean getCaught() {
         return caught;
     }
 
@@ -95,12 +95,23 @@ public class FishingGameModel {
         return (fifo.equals(key1) && bite);
     }
 
+    public boolean checkFailedCatch() {
+        Fifo key1 = new Fifo();
+        key1.push(Tilt.FACEUP);
+
+        return !fifo.equals(key1) && currentlyFishing;
+    }
+
+    public void failedCatch() {
+        clearTilts();
+    }
+
     public void setCaught(boolean caught) {
         this.caught = caught;
     }
 
     public void setTilt() {
-        float tiltValue = 3f;
+        float tiltValue = 5f;
         previousTilt = tilt;
         if (values[0] > tiltValue && values[0] > Math.abs(values[1])) {
             tilt = Tilt.LEFT;

@@ -12,6 +12,7 @@ import android.os.Vibrator;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -76,9 +77,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         if (model.checkSuccessfulThrow()) {
             model.startFishing();
+            Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.checkSuccessfulCatch()) {
             model.setCaught(true);
+        }else if(model.checkFailedCatch()){
+            model.failedCatch();
+            model.stopFishing();
+            changeBackground(model.getCurrentlyFishing());
+            Toast.makeText(this, "Failed Catch :(", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -87,10 +94,12 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             vibrate();
         } else if (model.getCaught()) {
             model.stopFishing();
+            Toast.makeText(this, "Caught a Fish!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.pastBiteTime()) {
             model.stopFishing();
             changeBackground(model.getCurrentlyFishing());
+            Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
         }
 
     }
