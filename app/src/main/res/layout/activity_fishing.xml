@@ -5,15 +5,20 @@
     android:id="@+id/fishing_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background_test_large_cropped"
     tools:context=".activities.FishingActivity">
+
 
     <ImageView
         android:id="@+id/background_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:contentDescription="A background image"
-        android:cropToPadding="true"
-        android:src="@drawable/not_fishing" />
+
+        android:scaleType="fitXY"
+
+        android:visibility="visible"
+        app:srcCompat="@drawable/background_test_large_cropped" />
 
     <FrameLayout
         android:id="@+id/fragment_container"

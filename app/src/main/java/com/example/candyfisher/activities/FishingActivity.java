@@ -40,6 +40,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private ImageView mImageView;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +57,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mRelativeLayout = findViewById(R.id.fishing_layout);
         mImageView = findViewById(R.id.background_image);
+
         model = new FishingGameModel();
 
     }
@@ -125,10 +127,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     public void changeBackground(boolean fishing) {
         if (fishing) {
-            mImageView.setImageResource(R.drawable.fishing);
+            mImageView.setImageResource(R.drawable.background_test_large_cropped);
 //            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.not_fishing));
         } else {
-            mImageView.setImageResource(R.drawable.not_fishing);
+            mImageView.setImageResource(R.drawable.background_test_large_cropped);
 //            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.fishing));
         }
     }
