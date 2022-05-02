@@ -1,8 +1,11 @@
 package com.example.candyfisher.models;
 
 
+import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
+
+import java.util.Random;
 
 public class FishingGameModel {
     private static final String TAG = "FishingGameModel";
@@ -110,6 +113,12 @@ public class FishingGameModel {
         this.caught = caught;
     }
 
+    public Candies getCatch(){
+        Random rand = new Random();
+        int index = rand.nextInt(Candies.values().length);
+        return Candies.values()[index];
+    }
+
     public void setTilt() {
         float tiltValue = 5f;
         previousTilt = tilt;
@@ -131,5 +140,4 @@ public class FishingGameModel {
             fifo.push(tilt);
         }
     }
-
 }

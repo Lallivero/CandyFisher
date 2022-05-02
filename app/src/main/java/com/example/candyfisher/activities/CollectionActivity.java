@@ -30,10 +30,6 @@ public class CollectionActivity extends AppCompatActivity {
 
     }
 
-    public void increaseCandy(View view) {
-    }
-
-
     public void initialiseView(ArrayList<CollectionListData> collectionListData) {
 
         RecyclerView recyclerView = findViewById(R.id.collection_view);

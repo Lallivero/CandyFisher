@@ -5,7 +5,6 @@
     android:id="@+id/fishing_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_test_large_cropped"
     tools:context=".activities.FishingActivity">
 
 
@@ -15,15 +14,24 @@
         android:layout_height="match_parent"
         android:contentDescription="A background image"
 
-        android:scaleType="fitXY"
+        android:scaleType="centerCrop"
 
         android:visibility="visible"
-        app:srcCompat="@drawable/background_test_large_cropped" />
+        app:srcCompat="@drawable/not_fishing" />
 
     <FrameLayout
         android:id="@+id/fragment_container"
 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+    <ImageView
+        android:id="@+id/testImage"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="invisible"
+        app:srcCompat="@drawable/candy1" />
 
 </RelativeLayout>

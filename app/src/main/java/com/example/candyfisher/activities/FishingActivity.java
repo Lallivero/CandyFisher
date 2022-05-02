@@ -18,11 +18,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
 import com.example.candyfisher.fragments.FailedThrow;
 import com.example.candyfisher.fragments.FailureFragment;
+import com.example.candyfisher.fragments.SuccessFragment;
+import com.example.candyfisher.models.CollectionListData;
 import com.example.candyfisher.models.FishingGameModel;
+import com.example.candyfisher.viewModels.CollectionViewModel;
+
+import java.util.ArrayList;
 
 
 public class FishingActivity extends AppCompatActivity implements SensorEventListener {
@@ -38,13 +44,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private RelativeLayout mRelativeLayout;
     private ImageView mImageView;
-
+    private CollectionViewModel myCollectionViewModel;
+    private ArrayList<CollectionListData> myData;
+    private ImageView testImage;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fishing);
+
+        myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
+        myCollectionViewModel.getCollectionListData().observe(this, this::initializeData);
 
         if (values == null) {
             values = new float[3];
@@ -57,11 +68,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mRelativeLayout = findViewById(R.id.fishing_layout);
         mImageView = findViewById(R.id.background_image);
+        testImage = findViewById(R.id.testImage);
 
         model = new FishingGameModel();
 
     }
 
+    private void initializeData(ArrayList<CollectionListData> collectionListData) {
+        myData = collectionListData;
+    }
 
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -83,7 +98,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             changeBackground(model.getCurrentlyFishing());
         } else if (model.checkSuccessfulCatch()) {
             model.setCaught(true);
-        }else if(model.checkFailedCatch()){
+        } else if (model.checkFailedCatch()) {
             model.failedCatch();
             model.stopFishing();
             changeBackground(model.getCurrentlyFishing());
@@ -96,7 +111,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             vibrate();
         } else if (model.getCaught()) {
             model.stopFishing();
-            Toast.makeText(this, "Caught a Fish!", Toast.LENGTH_SHORT).show();
+//            testImage.setImageResource(myData.get(model.getCatch().ordinal()).getImageId());
+//            testImage.setVisibility(View.VISIBLE);
+//            loadFragment(myData.get(model.getCatch().ordinal()).getImageId());
+            Toast.makeText(this, model.getCatch().toString(), Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.pastBiteTime()) {
             model.stopFishing();
@@ -112,25 +130,25 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
-    public void onClick(View view) {
-        loadFragment(new FailureFragment());
-    }
 
-    private void loadFragment(Fragment fragment) {
-        FailedThrow failureFragment = new FailedThrow().newInstance("a", "b");
+    private void loadFragment(int imageId) {
+//        SuccessFragment successFragment = SuccessFragment.newInstance(String.valueOf(imageId));
         FragmentManager fragmentManager = getSupportFragmentManager();
+//        successFragment.show(fragmentManager, "success_fragment");
+        Bundle bundle = new Bundle();
+        bundle.putInt("imageId" ,imageId);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, failureFragment).addToBackStack(null).commit();
-        display = true;
+        fragmentTransaction.add(R.id.fragment_container, SuccessFragment.newInstance(String.valueOf(imageId))).addToBackStack(null).commit();
+//        display = true;
     }
 
 
     public void changeBackground(boolean fishing) {
         if (fishing) {
-            mImageView.setImageResource(R.drawable.background_test_large_cropped);
+            mImageView.setImageResource(R.drawable.fishing);
 //            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.not_fishing));
         } else {
-            mImageView.setImageResource(R.drawable.background_test_large_cropped);
+            mImageView.setImageResource(R.drawable.not_fishing);
 //            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.fishing));
         }
     }
