@@ -22,13 +22,14 @@ public class CollectionViewModel extends AndroidViewModel {
     public CollectionViewModel(Application application) {
         super(application);
         SharedPreferenceAccess.initialise(getApplication());
-    }
-
-    public LiveData<ArrayList<CollectionListData>> getCollectionListData() {
         if (collectionListData == null) {
             collectionListData = new MutableLiveData<>();
             loadData();
         }
+    }
+
+    public LiveData<ArrayList<CollectionListData>> getCollectionListData() {
+
         return collectionListData;
     }
 

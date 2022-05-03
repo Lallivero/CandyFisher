@@ -103,5 +103,6 @@
     <string name="image_of_the_catch">Image of the catch</string>
     <string name="ok">OK</string>
     <string name="cancel">cancel</string>
+    <string name="catchDialogText">\"Yay! You caught a \"</string>
 
 </resources>

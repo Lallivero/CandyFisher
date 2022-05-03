@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.ScaleDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -21,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -46,16 +48,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private FishingGameModel model;
 
-    private boolean display = false;
+
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
-    private RelativeLayout mRelativeLayout;
+
     private ImageView mImageView;
     private CollectionViewModel myCollectionViewModel;
-    private ArrayList<CollectionListData> myData;
-    private ImageView testImage;
+
 
 
     @Override
@@ -64,7 +65,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_fishing);
 
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
-        myCollectionViewModel.getCollectionListData().observe(this, this::initializeData);
+
 
         if (values == null) {
             values = new float[3];
@@ -75,17 +76,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-        mRelativeLayout = findViewById(R.id.fishing_layout);
+
         mImageView = findViewById(R.id.background_image);
-        testImage = findViewById(R.id.testImage);
+
 
         model = new FishingGameModel();
 
     }
 
-    private void initializeData(ArrayList<CollectionListData> collectionListData) {
-        myData = collectionListData;
-    }
 
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -111,7 +109,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             model.setCaught(true);
         } else if (model.checkFailedCatch() && model.gracePeriod()) {
             //Sound effect here when you fail to catch
-
             model.stopFishing();
             changeBackground(model.getCurrentlyFishing());
             Toast.makeText(this, "Failed Catch :(", Toast.LENGTH_SHORT).show();
@@ -125,17 +122,28 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         } else if (model.getCaught()) {
             //Sound effect here when you get a catch
             model.stopFishing();
-            CollectionListData myCatch = myData.get(model.getCatch().ordinal());
-            showPopUp(myCatch);
-            Toast.makeText(this, myCatch.getDescription(), Toast.LENGTH_SHORT).show();
-            changeBackground(model.getCurrentlyFishing());
+            onCatch();
         } else if (model.pastBiteTime()) {
             //Same  sound effect as for failed catch
             model.stopFishing();
-            changeBackground(model.getCurrentlyFishing());
-            Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
+            onFailedCatch();
+
         }
 
+    }
+
+    private void onFailedCatch() {
+        changeBackground(model.getCurrentlyFishing());
+        showPopUp(-1);
+        Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
+    }
+
+    private void onCatch() {
+        int catchIndex = model.getCatch().ordinal();
+        myCollectionViewModel.swapCollected(catchIndex);
+        showPopUp(catchIndex);
+        Toast.makeText(this, myCollectionViewModel.getItemDescription(catchIndex), Toast.LENGTH_SHORT).show();
+        changeBackground(model.getCurrentlyFishing());
     }
 
 
@@ -169,7 +177,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 //        display = true;
     }
 
-    private void showPopUp(CollectionListData myCatch) {
+    private void showPopUp(int catchIndex) {
         sensorManager.unregisterListener(this);
         ImageView imageView;
         TextView textView;
@@ -177,9 +185,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
         imageView = alertCustomDialog.findViewById(R.id.catch_image);
-        imageView.setImageResource(myCatch.getImageId());
         textView = alertCustomDialog.findViewById(R.id.dialog_candy_text);
-        textView.setText(myCatch.getDescription());
+        if(catchIndex == -1){
+            textView.setText("Oof, that one got away!");
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            imageView.setImageResource(R.drawable.cross);
+
+        }else {
+            imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
+
+            textView.setText(String.format("%s%s", getString(R.string.catchDialogText), myCollectionViewModel.getItemDescription(catchIndex)));
+        }
+
         final AlertDialog dialog = alert.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         Button button = alertCustomDialog.findViewById(R.id.ok_button);
