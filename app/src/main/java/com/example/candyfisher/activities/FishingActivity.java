@@ -1,6 +1,9 @@
 package com.example.candyfisher.activities;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,9 +12,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +47,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private boolean display = false;
 
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
 
     private RelativeLayout mRelativeLayout;
     private ImageView mImageView;
@@ -62,8 +70,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         }
 
 
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        Sensor accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
         mRelativeLayout = findViewById(R.id.fishing_layout);
@@ -111,10 +119,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             vibrate();
         } else if (model.getCaught()) {
             model.stopFishing();
-//            testImage.setImageResource(myData.get(model.getCatch().ordinal()).getImageId());
-//            testImage.setVisibility(View.VISIBLE);
-//            loadFragment(myData.get(model.getCatch().ordinal()).getImageId());
-            Toast.makeText(this, model.getCatch().toString(), Toast.LENGTH_SHORT).show();
+            CollectionListData myCatch = myData.get(model.getCatch().ordinal());
+
+            showPopUp(myCatch);
+
+            Toast.makeText(this, myCatch.getDescription(), Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.pastBiteTime()) {
             model.stopFishing();
@@ -130,6 +139,17 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
 
     private void loadFragment(int imageId) {
 //        SuccessFragment successFragment = SuccessFragment.newInstance(String.valueOf(imageId));
@@ -140,6 +160,28 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, SuccessFragment.newInstance(String.valueOf(imageId))).addToBackStack(null).commit();
 //        display = true;
+    }
+
+    private void showPopUp(CollectionListData myCatch){
+        sensorManager.unregisterListener(this);
+        ImageView imageView;
+        TextView textView;
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        imageView = alertCustomDialog.findViewById(R.id.catch_image);
+        imageView.setImageResource(myCatch.getImageId());
+        textView = alertCustomDialog.findViewById(R.id.dialog_candy_text);
+        textView.setText(myCatch.getDescription());
+        final AlertDialog dialog = alert.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        Button button = alertCustomDialog.findViewById(R.id.ok_button);
+        button.setOnClickListener(view -> {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+            dialog.dismiss();
+        });
+        dialog.show();
+
     }
 
 

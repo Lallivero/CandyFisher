@@ -100,5 +100,8 @@
     <string name="hello_blank_fragment">Blank</string>
     <string name="candy_collection">Candy Collection</string>
     <string name="restart">Play Again!</string>
+    <string name="image_of_the_catch">Image of the catch</string>
+    <string name="ok">OK</string>
+    <string name="cancel">cancel</string>
 
 </resources>
