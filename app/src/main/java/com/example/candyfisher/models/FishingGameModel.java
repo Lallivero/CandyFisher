@@ -1,6 +1,8 @@
 package com.example.candyfisher.models;
 
 
+import android.util.Log;
+
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
@@ -22,7 +24,7 @@ public class FishingGameModel {
     private boolean caught;
 
     //Fishing timers
-    private long fishingStartTime;
+    private long fishingStartTime = 0;
     private long biteTime;
 
 
@@ -36,7 +38,7 @@ public class FishingGameModel {
 
     public void startFishing() {
         currentlyFishing = true;
-        clearTilts();
+//        clearTilts();
         fishingStartTime = System.currentTimeMillis();
     }
 
@@ -44,6 +46,7 @@ public class FishingGameModel {
         currentlyFishing = false;
         bite = false;
         caught = false;
+        clearTilts();
     }
 
     private void clearTilts() {
@@ -53,8 +56,10 @@ public class FishingGameModel {
     }
 
     public void setValues(float[] values) {
+
         this.values = values;
         setTilt();
+
     }
 
     public boolean biteEligible() {
@@ -72,7 +77,7 @@ public class FishingGameModel {
     public void bite() {
         biteTime = System.currentTimeMillis();
         bite = true;
-        clearTilts();
+//        clearTilts();
     }
 
     public boolean getCaught() {
@@ -87,7 +92,7 @@ public class FishingGameModel {
         key2.push(Tilt.UPSIDEDOWN);
         key2.push(Tilt.FACEUP);
 //        Log.d(TAG, String.valueOf(fifo));
-        return (fifo.equals(key2) || fifo.equals(key1));
+        return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
     }
 
     public boolean checkSuccessfulCatch() {
@@ -100,20 +105,28 @@ public class FishingGameModel {
 
     public boolean checkFailedCatch() {
         Fifo key1 = new Fifo();
+        key1.push(Tilt.UPRIGHT);
         key1.push(Tilt.FACEUP);
+        Fifo key2 = new Fifo();
+        key2.push(Tilt.UPSIDEDOWN);
+        key2.push(Tilt.FACEUP);
+//        Log.d(TAG, String.valueOf(fifo));
+        return (!(fifo.equals(key2) || fifo.equals(key1)) && currentlyFishing);
+//
+//        Fifo key1 = new Fifo();
+//
+//        key1.push(Tilt.FACEUP);
+//        Fifo key2 = new Fifo();
+//        //Log.i(TAG, "checkFailedCatch: " + fifo.toString());
+//        return !fifo.equals(key1) && currentlyFishing;
 
-        return !fifo.equals(key1) && currentlyFishing;
-    }
-
-    public void failedCatch() {
-        clearTilts();
     }
 
     public void setCaught(boolean caught) {
         this.caught = caught;
     }
 
-    public Candies getCatch(){
+    public Candies getCatch() {
         Random rand = new Random();
         int index = rand.nextInt(Candies.values().length);
         return Candies.values()[index];
@@ -139,5 +152,11 @@ public class FishingGameModel {
         if (tilt != previousTilt) {
             fifo.push(tilt);
         }
+    }
+
+    public boolean gracePeriod() {
+        long timeDiff = System.currentTimeMillis() - fishingStartTime;
+//        Log.i(TAG, "gracePeriod: " + String.valueOf(timeDiff));
+        return timeDiff > 1000;
     }
 }

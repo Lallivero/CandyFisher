@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -102,12 +103,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         if (model.checkSuccessfulThrow()) {
             model.startFishing();
+            //Sound effect here when throwing
+            Log.i(TAG, "onSensorChanged: Yep");
             Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.checkSuccessfulCatch()) {
             model.setCaught(true);
-        } else if (model.checkFailedCatch()) {
-            model.failedCatch();
+        } else if (model.checkFailedCatch() && model.gracePeriod()) {
+            //Sound effect here when you fail to catch
+
             model.stopFishing();
             changeBackground(model.getCurrentlyFishing());
             Toast.makeText(this, "Failed Catch :(", Toast.LENGTH_SHORT).show();
@@ -115,17 +119,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
 
         if (model.biteEligible()) {
+            //Sound effect here when you get a bite
             model.bite();
             vibrate();
         } else if (model.getCaught()) {
+            //Sound effect here when you get a catch
             model.stopFishing();
             CollectionListData myCatch = myData.get(model.getCatch().ordinal());
-
             showPopUp(myCatch);
-
             Toast.makeText(this, myCatch.getDescription(), Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
         } else if (model.pastBiteTime()) {
+            //Same  sound effect as for failed catch
             model.stopFishing();
             changeBackground(model.getCurrentlyFishing());
             Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
@@ -152,6 +157,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
+    @Deprecated
     private void loadFragment(int imageId) {
 //        SuccessFragment successFragment = SuccessFragment.newInstance(String.valueOf(imageId));
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -189,10 +195,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     public void changeBackground(boolean fishing) {
         if (fishing) {
             mImageView.setImageResource(R.drawable.fishing);
-//            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.not_fishing));
         } else {
             mImageView.setImageResource(R.drawable.not_fishing);
-//            mRelativeLayout.setBackground(AppCompatResources.getDrawable(this, R.drawable.fishing));
         }
     }
 
