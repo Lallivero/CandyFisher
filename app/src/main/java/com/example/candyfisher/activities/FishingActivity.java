@@ -109,8 +109,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         } else if (model.checkFailedCatch() && model.gracePeriod()) {
             //Sound effect here when you fail to catch
             model.stopFishing();
-            changeBackground(model.getCurrentlyFishing());
-            Toast.makeText(this, "Failed Catch :(", Toast.LENGTH_SHORT).show();
+            onFailedCatch();
         }
 
         //Check if we are eligible for a bite
