@@ -142,13 +142,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onPause() {
         super.onPause();
+        sensorManager.unregisterListener(this);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     private void loadFragment(int imageId) {
@@ -156,13 +157,13 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         FragmentManager fragmentManager = getSupportFragmentManager();
 //        successFragment.show(fragmentManager, "success_fragment");
         Bundle bundle = new Bundle();
-        bundle.putInt("imageId" ,imageId);
+        bundle.putInt("imageId", imageId);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, SuccessFragment.newInstance(String.valueOf(imageId))).addToBackStack(null).commit();
 //        display = true;
     }
 
-    private void showPopUp(CollectionListData myCatch){
+    private void showPopUp(CollectionListData myCatch) {
         sensorManager.unregisterListener(this);
         ImageView imageView;
         TextView textView;

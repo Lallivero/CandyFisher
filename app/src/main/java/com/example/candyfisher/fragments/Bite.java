@@ -18,6 +18,7 @@ import com.example.candyfisher.R;
  *
  * Fragment for when a catch is succesfull
  */
+@Deprecated
 public class Bite extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match

@@ -20,6 +20,7 @@ import android.widget.ImageView;
  *
  * Fragment for when the wrong movement has been done
  */
+@Deprecated
 public class FailedThrow extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
