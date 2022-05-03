@@ -18,6 +18,7 @@ import com.example.candyfisher.R;
  * Fragment for when a catch is succesfull and you either throw again or go to Collection
  *
  */
+@Deprecated
 public class PlayAgain extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match

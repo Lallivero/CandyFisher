@@ -21,6 +21,7 @@ import com.example.candyfisher.R;
  *
  * Fragment for when a catch is unsuccesfull
  */
+@Deprecated
 public class FailureFragment extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match

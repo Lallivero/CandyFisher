@@ -22,6 +22,7 @@ import com.example.candyfisher.R;
  * Use the {@link SuccessFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+@Deprecated
 public class SuccessFragment extends DialogFragment {
 
     // TODO: Rename parameter arguments, choose names that match
