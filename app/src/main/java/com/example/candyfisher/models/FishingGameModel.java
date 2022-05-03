@@ -1,8 +1,6 @@
 package com.example.candyfisher.models;
 
 
-import android.util.Log;
-
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
@@ -21,31 +19,29 @@ public class FishingGameModel {
     //Flow booleans
     private boolean currentlyFishing;
     private boolean bite;
-    private boolean caught;
 
     //Fishing timers
     private long fishingStartTime = 0;
     private long biteTime;
+    private long biteDelay;
 
 
     public FishingGameModel() {
         if (values == null) {
             values = new float[3];
         }
-
         fifo = new Fifo();
     }
 
     public void startFishing() {
         currentlyFishing = true;
-//        clearTilts();
+        biteDelay = randomiseBiteDelay();
         fishingStartTime = System.currentTimeMillis();
     }
 
     public void stopFishing() {
         currentlyFishing = false;
         bite = false;
-        caught = false;
         clearTilts();
     }
 
@@ -56,34 +52,31 @@ public class FishingGameModel {
     }
 
     public void setValues(float[] values) {
-
         this.values = values;
         setTilt();
-
     }
 
     public boolean biteEligible() {
-        return !bite && currentlyFishing && System.currentTimeMillis() - fishingStartTime > 2000;
+        return !bite && currentlyFishing && System.currentTimeMillis() - fishingStartTime > biteDelay;
     }
 
     public boolean pastBiteTime() {
-        return bite && System.currentTimeMillis() - biteTime > 2000;
+        long biteDuration = 2000;
+        return bite && System.currentTimeMillis() - biteTime > biteDuration;
     }
 
     public boolean getCurrentlyFishing() {
         return currentlyFishing;
     }
 
+    //Register a bite
     public void bite() {
         biteTime = System.currentTimeMillis();
         bite = true;
-//        clearTilts();
+
     }
 
-    public boolean getCaught() {
-        return caught;
-    }
-
+    //If the tilt-fifo contains either of the two "correct" patterns for a throw and we are not currently fishing, return true
     public boolean checkSuccessfulThrow() {
         Fifo key1 = new Fifo();
         key1.push(Tilt.UPRIGHT);
@@ -91,10 +84,11 @@ public class FishingGameModel {
         Fifo key2 = new Fifo();
         key2.push(Tilt.UPSIDEDOWN);
         key2.push(Tilt.FACEUP);
-//        Log.d(TAG, String.valueOf(fifo));
+
         return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
     }
 
+    //If the tilt-fifo contains the allowed catch pattern and we have a bite, return true
     public boolean checkSuccessfulCatch() {
         Fifo key1 = new Fifo();
         key1.push(Tilt.FACEUP);
@@ -103,6 +97,7 @@ public class FishingGameModel {
         return (fifo.equals(key1) && bite);
     }
 
+    //If we are fishing and get any tilt combination other than the two allowed throws, return true
     public boolean checkFailedCatch() {
         Fifo key1 = new Fifo();
         key1.push(Tilt.UPRIGHT);
@@ -110,36 +105,24 @@ public class FishingGameModel {
         Fifo key2 = new Fifo();
         key2.push(Tilt.UPSIDEDOWN);
         key2.push(Tilt.FACEUP);
-//        Log.d(TAG, String.valueOf(fifo));
+
         return (!(fifo.equals(key2) || fifo.equals(key1)) && currentlyFishing);
-//
-//        Fifo key1 = new Fifo();
-//
-//        key1.push(Tilt.FACEUP);
-//        Fifo key2 = new Fifo();
-//        //Log.i(TAG, "checkFailedCatch: " + fifo.toString());
-//        return !fifo.equals(key1) && currentlyFishing;
 
     }
 
-    public void setCaught(boolean caught) {
-        this.caught = caught;
-    }
-
+    //Generate a random candy
     public Candies getCatch() {
         Random rand = new Random();
         int index = rand.nextInt(Candies.values().length);
         return Candies.values()[index];
     }
 
-    public void setTilt() {
+    //Sets the tilt to discrete values depending on the current sensor values.
+    private void setTilt() {
         float tiltValue = 5f;
         previousTilt = tilt;
         if (values[0] > tiltValue && values[0] > Math.abs(values[1])) {
             tilt = Tilt.LEFT;
-//        }
-//        else if(filteredValues[1] > tiltValue && filteredValues[2] > 2){
-//            tilt = Tilt.LEANINGFORWARDS;
         } else if (values[0] < -tiltValue && Math.abs(values[0]) > Math.abs(values[1])) {
             tilt = Tilt.RIGHT;
         } else if (values[1] > tiltValue && values[1] > Math.abs(values[0])) {
@@ -154,9 +137,16 @@ public class FishingGameModel {
         }
     }
 
+    //Sets an allotted grace period during which a throw can not fail to account for noise.
     public boolean gracePeriod() {
         long timeDiff = System.currentTimeMillis() - fishingStartTime;
-//        Log.i(TAG, "gracePeriod: " + String.valueOf(timeDiff));
-        return timeDiff > 1000;
+        long GRACE_PERIOD = 1000;
+        return timeDiff > GRACE_PERIOD;
+    }
+
+    //Sets a random value between 2 and 5 seconds before a bite event can register
+    private long randomiseBiteDelay() {
+        Random random = new Random();
+        return random.nextInt(3000) + 2000;
     }
 }

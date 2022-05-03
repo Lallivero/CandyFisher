@@ -44,7 +44,7 @@ public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         CollectionListData item = collection.get(position);
         holder.textView.setText(item.getDescription());
-        holder.textView2.setText((item.getCollected() ? "Collected" : "Not Collected"));
+        holder.textView2.setText(String.valueOf(item.getNumCollected()));
         holder.imageView.setImageResource(item.getImageId());
 //        holder.itemView.setOnClickListener(myCallback.onClick(position));
         holder.relativeLayout.setOnClickListener(view -> myCallback.onClick(holder.getAdapterPosition()));

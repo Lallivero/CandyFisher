@@ -34,7 +34,7 @@ public class CollectionActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.collection_view);
         CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData,
-                index -> myCollectionViewModel.swapCollected(index));
+                index -> myCollectionViewModel.decrementCollected(index));
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(collectionListAdapter);

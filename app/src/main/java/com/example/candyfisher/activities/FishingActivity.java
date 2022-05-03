@@ -49,14 +49,12 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private FishingGameModel model;
 
 
-
     private SensorManager sensorManager;
     private Sensor accelerometer;
 
 
     private ImageView mImageView;
     private CollectionViewModel myCollectionViewModel;
-
 
 
     @Override
@@ -79,12 +77,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         mImageView = findViewById(R.id.background_image);
 
-
         model = new FishingGameModel();
 
     }
 
-
+    //Vibrate the phone
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).
@@ -93,20 +90,22 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         }
     }
-
+    //The "clock" of the game. Every sensor event is a tick.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-
+        //provides sensor data to model
         model.setValues(sensorEvent.values.clone());
-
+        //If we detect a successful throw, start fishing.
         if (model.checkSuccessfulThrow()) {
             model.startFishing();
             //Sound effect here when throwing
-            Log.i(TAG, "onSensorChanged: Yep");
             Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
+        //If we catch something successfully register that (Might be some redundancy here)
         } else if (model.checkSuccessfulCatch()) {
-            model.setCaught(true);
+            model.stopFishing();
+            onCatch();
+            //If we fail to catch something after the allotted grace period stop fishing
         } else if (model.checkFailedCatch() && model.gracePeriod()) {
             //Sound effect here when you fail to catch
             model.stopFishing();
@@ -114,15 +113,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             Toast.makeText(this, "Failed Catch :(", Toast.LENGTH_SHORT).show();
         }
 
-
+        //Check if we are eligible for a bite
         if (model.biteEligible()) {
             //Sound effect here when you get a bite
             model.bite();
             vibrate();
-        } else if (model.getCaught()) {
-            //Sound effect here when you get a catch
-            model.stopFishing();
-            onCatch();
         } else if (model.pastBiteTime()) {
             //Same  sound effect as for failed catch
             model.stopFishing();
@@ -132,15 +127,25 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+    /*
+    Actions to be carried out when a catch fails.
+    Change background, show a popup with value -1 for failure.
+     */
     private void onFailedCatch() {
+        int FAILED_CATCH_VALUE = -1;
         changeBackground(model.getCurrentlyFishing());
-        showPopUp(-1);
+        showPopUp(FAILED_CATCH_VALUE);
         Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
     }
 
+    /*
+    Actions to be carried out on successful catch.
+    These include generating a random catch, setting that index to collected,
+    displaying a popup and changing the background
+    */
     private void onCatch() {
         int catchIndex = model.getCatch().ordinal();
-        myCollectionViewModel.swapCollected(catchIndex);
+        myCollectionViewModel.incrementCollected(catchIndex);
         showPopUp(catchIndex);
         Toast.makeText(this, myCollectionViewModel.getItemDescription(catchIndex), Toast.LENGTH_SHORT).show();
         changeBackground(model.getCurrentlyFishing());
@@ -152,6 +157,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+    //Pauses the sensor when activity is not in focus
     @Override
     protected void onPause() {
         super.onPause();
@@ -160,11 +166,19 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        sensorManager.unregisterListener(this);
+    }
+
+    //Re-registers the sensor when focus is restored
+    @Override
     protected void onResume() {
         super.onResume();
         sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
+    //Don't use this, use popup instead
     @Deprecated
     private void loadFragment(int imageId) {
 //        SuccessFragment successFragment = SuccessFragment.newInstance(String.valueOf(imageId));
@@ -177,6 +191,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 //        display = true;
     }
 
+    //Shows a pop up, takes an int referring to the index of the caught candy. -1 if unsuccessful catch
     private void showPopUp(int catchIndex) {
         sensorManager.unregisterListener(this);
         ImageView imageView;
@@ -186,15 +201,16 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         alert.setView(alertCustomDialog);
         imageView = alertCustomDialog.findViewById(R.id.catch_image);
         textView = alertCustomDialog.findViewById(R.id.dialog_candy_text);
-        if(catchIndex == -1){
+        //This is the failure state dialog
+        if (catchIndex == -1) {
             textView.setText("Oof, that one got away!");
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setImageResource(R.drawable.cross);
-
-        }else {
+            //Success state dialog
+        } else {
             imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
 
-            textView.setText(String.format("%s%s", getString(R.string.catchDialogText), myCollectionViewModel.getItemDescription(catchIndex)));
+            textView.setText(String.format("%s %s!", getString(R.string.catchDialogText), myCollectionViewModel.getItemDescription(catchIndex)));
         }
 
         final AlertDialog dialog = alert.create();

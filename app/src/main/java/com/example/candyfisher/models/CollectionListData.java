@@ -1,35 +1,41 @@
 package com.example.candyfisher.models;
 
 public class CollectionListData {
-    private boolean collected;
+    private int collected;
     private int imageId;
     private String description;
 
-    public CollectionListData(String description, int imageId, boolean collected){
+    public CollectionListData(String description, int imageId, int collected) {
         this.description = description;
         this.imageId = imageId;
         this.collected = collected;
     }
 
-    public void swapCollected(){
-        collected = !collected;
+    public void incrementCollected() {
+        collected += 1;
     }
 
-    public boolean getCollected(){
+    public void decrementCollected() {
+        collected -= 1;
+    }
+
+    public int getNumCollected() {
         return collected;
     }
-    public void setDescription(String description){
+
+    public void setDescription(String description) {
         this.description = description;
     }
-    public String getDescription(){
+
+    public String getDescription() {
         return description;
     }
 
-    public void setImageId(int imageId){
+    public void setImageId(int imageId) {
         this.imageId = imageId;
     }
 
-    public int getImageId(){
+    public int getImageId() {
         return imageId;
     }
 
