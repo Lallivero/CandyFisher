@@ -61,15 +61,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fishing);
-
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
-
-
+        myCollectionViewModel.getCollectionListData();
         if (values == null) {
             values = new float[3];
         }
-
-
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
