@@ -1,6 +1,9 @@
 package com.example.candyfisher.models;
 
 
+import android.hardware.SensorManager;
+import android.util.Log;
+
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;
 import com.example.candyfisher.utils.Tilt;
@@ -12,6 +15,8 @@ public class FishingGameModel {
 
     //State values
     private float[] values;
+    private float[] rotationMatrix;
+    private float[] orientationValues;
     private Tilt previousTilt;
     private Tilt tilt;
     private final Fifo fifo;
@@ -25,9 +30,16 @@ public class FishingGameModel {
     private long biteTime;
     private long biteDelay;
 
+    private final boolean orientationMode;
 
-    public FishingGameModel() {
-        if (values == null) {
+
+    public FishingGameModel(boolean orientation) {
+        orientationMode = orientation;
+        if (orientationMode && values == null) {
+            values = new float[4];
+            orientationValues = new float[3];
+            rotationMatrix = new float[9];
+        } else if (values == null) {
             values = new float[3];
         }
         fifo = new Fifo();
@@ -53,7 +65,12 @@ public class FishingGameModel {
 
     public void setValues(float[] values) {
         this.values = values;
-        setTilt();
+        if (orientationMode) {
+            SensorManager.getRotationMatrixFromVector(rotationMatrix, values);
+            SensorManager.getOrientation(rotationMatrix, orientationValues);
+            setTiltRotation();
+        } else
+            setTilt();
     }
 
     public boolean biteEligible() {
@@ -84,7 +101,6 @@ public class FishingGameModel {
         Fifo key2 = new Fifo();
         key2.push(Tilt.UPSIDEDOWN);
         key2.push(Tilt.FACEUP);
-
         return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
     }
 
@@ -93,7 +109,6 @@ public class FishingGameModel {
         Fifo key1 = new Fifo();
         key1.push(Tilt.FACEUP);
         key1.push(Tilt.UPRIGHT);
-
         return (fifo.equals(key1) && bite);
     }
 
@@ -105,7 +120,6 @@ public class FishingGameModel {
         Fifo key2 = new Fifo();
         key2.push(Tilt.UPSIDEDOWN);
         key2.push(Tilt.FACEUP);
-
         return (!(fifo.equals(key2) || fifo.equals(key1)) && currentlyFishing);
 
     }
@@ -115,6 +129,20 @@ public class FishingGameModel {
         Random rand = new Random();
         int index = rand.nextInt(Candies.values().length);
         return Candies.values()[index];
+    }
+
+    private void setTiltRotation() {
+        float tiltSensitivity = 0.5f;
+        previousTilt = tilt;
+        if (Math.abs(Math.PI/2f - Math.abs(orientationValues[1])) < tiltSensitivity) {
+            tilt = Tilt.UPRIGHT;
+        } else if (Math.abs(orientationValues[1]) < tiltSensitivity) {
+            tilt = Tilt.FACEUP;
+        }
+        if (tilt != previousTilt) {
+            fifo.push(tilt);
+        }
+        Log.i(TAG, "setTiltRotation: " + orientationValues[1]);
     }
 
     //Sets the tilt to discrete values depending on the current sensor values.

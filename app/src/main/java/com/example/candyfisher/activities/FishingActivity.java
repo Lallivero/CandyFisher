@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.ScaleDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -13,37 +12,25 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
-import com.example.candyfisher.fragments.FailedThrow;
-import com.example.candyfisher.fragments.FailureFragment;
-import com.example.candyfisher.fragments.SuccessFragment;
-import com.example.candyfisher.models.CollectionListData;
 import com.example.candyfisher.models.FishingGameModel;
 import com.example.candyfisher.viewModels.CollectionViewModel;
-
-import java.util.ArrayList;
 
 
 public class FishingActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "FishingActivity";
-
-    private float[] values;
 
 
     private FishingGameModel model;
@@ -51,10 +38,13 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor orientationVector;
 
 
     private ImageView mImageView;
     private CollectionViewModel myCollectionViewModel;
+
+    private boolean orientationMode = true;
 
 
     @Override
@@ -63,17 +53,20 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_fishing);
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData();
-        if (values == null) {
-            values = new float[3];
-        }
+
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        if (orientationMode) {
+            orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
 
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
 
+        } else {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+
+        }
         mImageView = findViewById(R.id.background_image);
-
-        model = new FishingGameModel();
+        model = new FishingGameModel(orientationMode);
 
     }
 
@@ -86,9 +79,12 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         }
     }
+
     //The "clock" of the game. Every sensor event is a tick.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
+
         //provides sensor data to model
         model.setValues(sensorEvent.values.clone());
         //If we detect a successful throw, start fishing.
@@ -97,7 +93,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             //Sound effect here when throwing
             Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
-        //If we catch something successfully register that (Might be some redundancy here)
+            //If we catch something successfully register that (Might be some redundancy here)
         } else if (model.checkSuccessfulCatch()) {
             model.stopFishing();
             onCatch();
@@ -119,8 +115,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             onFailedCatch();
 
         }
-
     }
+
 
     /*
     Actions to be carried out when a catch fails.
@@ -170,20 +166,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
-        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-    }
-
-    //Don't use this, use popup instead
-    @Deprecated
-    private void loadFragment(int imageId) {
-//        SuccessFragment successFragment = SuccessFragment.newInstance(String.valueOf(imageId));
-        FragmentManager fragmentManager = getSupportFragmentManager();
-//        successFragment.show(fragmentManager, "success_fragment");
-        Bundle bundle = new Bundle();
-        bundle.putInt("imageId", imageId);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, SuccessFragment.newInstance(String.valueOf(imageId))).addToBackStack(null).commit();
-//        display = true;
+        if (orientationMode)
+            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+        else
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
     //Shows a pop up, takes an int referring to the index of the caught candy. -1 if unsuccessful catch
@@ -212,7 +198,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         Button button = alertCustomDialog.findViewById(R.id.ok_button);
         button.setOnClickListener(view -> {
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+            if(orientationMode)
+                sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+            else
+                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
             dialog.dismiss();
         });
         dialog.show();
