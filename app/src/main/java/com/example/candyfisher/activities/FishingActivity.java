@@ -8,6 +8,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -20,8 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
@@ -44,7 +43,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private ImageView mImageView;
     private CollectionViewModel myCollectionViewModel;
 
-    private boolean orientationMode = true;
+    private AsyncTaskParameters asyncTaskParameters;
+
+    private final boolean orientationMode = true;
 
 
     @Override
@@ -68,9 +69,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         mImageView = findViewById(R.id.background_image);
         model = new FishingGameModel(orientationMode);
 
+        asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
+
     }
 
-    //Vibrate the phone
+    //Vibrate the phone, use AsyncVibration for multiple vibrations
     private void vibrate() {
         if (Build.VERSION.SDK_INT >= 26) {
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).
@@ -79,6 +82,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         }
     }
+
 
     //The "clock" of the game. Every sensor event is a tick.
     @Override
@@ -108,7 +112,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (model.biteEligible()) {
             //Sound effect here when you get a bite
             model.bite();
-            vibrate();
+            //Needs to be asynchronous in order to vibrate three times without locking UI thread
+            AsyncVibration asyncVibration = new AsyncVibration();
+            asyncVibration.execute(asyncTaskParameters);
+//            vibrate();
         } else if (model.pastBiteTime()) {
             //Same  sound effect as for failed catch
             model.stopFishing();
@@ -123,8 +130,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     Change background, show a popup with value -1 for failure.
      */
     private void onFailedCatch() {
-        int FAILED_CATCH_VALUE = -1;
         changeBackground(model.getCurrentlyFishing());
+        int FAILED_CATCH_VALUE = -1;
         showPopUp(FAILED_CATCH_VALUE);
         Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
     }
@@ -135,13 +142,13 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     displaying a popup and changing the background
     */
     private void onCatch() {
+        changeBackground(model.getCurrentlyFishing());
         int catchIndex = model.getCatch().ordinal();
         myCollectionViewModel.incrementCollected(catchIndex);
         showPopUp(catchIndex);
         Toast.makeText(this, myCollectionViewModel.getItemDescription(catchIndex), Toast.LENGTH_SHORT).show();
-        changeBackground(model.getCurrentlyFishing());
-    }
 
+    }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
@@ -196,9 +203,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         final AlertDialog dialog = alert.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         Button button = alertCustomDialog.findViewById(R.id.ok_button);
         button.setOnClickListener(view -> {
-            if(orientationMode)
+            if (orientationMode)
                 sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
             else
                 sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
@@ -208,12 +217,47 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
-
     public void changeBackground(boolean fishing) {
         if (fishing) {
             mImageView.setImageResource(R.drawable.fishing);
         } else {
             mImageView.setImageResource(R.drawable.not_fishing);
+        }
+    }
+
+    private static class AsyncTaskParameters {
+        Vibrator vibrator;
+        int numVibes;
+        long vibrationDelay;
+        long vibrationDuration;
+
+        AsyncTaskParameters(int numVibes, long vibrationDelay, long vibrationDuration, Vibrator vibrator) {
+            this.numVibes = numVibes;
+            this.vibrationDelay = vibrationDelay;
+            this.vibrationDuration = vibrationDuration;
+            this.vibrator = vibrator;
+        }
+
+    }
+
+    private static class AsyncVibration extends AsyncTask<AsyncTaskParameters, Void, Void> {
+
+        private long previousTime = 0;
+        private int count;
+
+        @Override
+        protected Void doInBackground(AsyncTaskParameters... parameters) {
+            while (count < parameters[0].numVibes) {
+                long currentTime = System.currentTimeMillis();
+                if (currentTime - previousTime > parameters[0].vibrationDelay) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        parameters[0].vibrator.vibrate(VibrationEffect.createOneShot(parameters[0].vibrationDuration, VibrationEffect.DEFAULT_AMPLITUDE));
+                    }
+                    previousTime = currentTime;
+                    count++;
+                }
+            }
+            return null;
         }
     }
 
