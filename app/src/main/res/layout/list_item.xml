@@ -24,7 +24,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:textColor="@color/black"
+        android:textColor="@color/darkblue"
         android:textSize="16sp" />
 
 
@@ -36,6 +36,6 @@
         android:layout_marginEnd="40dp"
         android:gravity="center_vertical"
         android:text="TextView"
-        android:textColor="@color/black" />
+        android:textColor="@color/darkblue" />
 
 </RelativeLayout>

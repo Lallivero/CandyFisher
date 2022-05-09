@@ -8,6 +8,13 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#FFFF3036</color>
+    <color name="gul">#FEEEB2</color>
+    <color name="orange">#FFC98D</color>
+    <color name= "turkos">#39A5B2</color>
+    <color name= "darkblue">#00465D</color>
+    <color name= "lila">#CF7195</color>
+    <color name= "röd">#d34d37</color>
+
 
     <color name="mascot_dark_brown">#FFD5754F</color>
     <color name="background_colour">#FFF55E61</color>

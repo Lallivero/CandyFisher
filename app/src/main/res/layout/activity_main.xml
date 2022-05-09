@@ -17,8 +17,8 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        app:srcCompat="@drawable/wafer_roll100_64_generated" />
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/candyfisher" />
 
     <TextView
         android:id="@+id/textView_title"
@@ -27,32 +27,39 @@
         android:layout_marginTop="112dp"
         android:text="@string/candyfisherTitleText"
         android:textAllCaps="true"
-        android:textColor="@color/background_colour"
-        android:textSize="40sp"
+        android:textColor="@color/gul"
+        android:textSize="60sp"
         android:textStyle="bold"
+        android:fontFamily="@font/bubble"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/button_play"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="228dp"
+        android:layout_height="61dp"
         android:layout_marginBottom="108dp"
+        android:background="@drawable/dialog_background_blue"
         android:onClick="toFishingActivity"
         android:text="@string/go_fish_text"
+        android:textColor="@color/gul"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/button_collection"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="223dp"
+        android:layout_height="48dp"
         android:layout_marginBottom="60dp"
+        android:background="@drawable/dialog_background_blue"
         android:onClick="toCollection"
         android:text="@string/text_collection"
+        android:textColor="@color/gul"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

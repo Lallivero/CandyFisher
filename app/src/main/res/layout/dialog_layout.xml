@@ -9,7 +9,7 @@
         android:layout_marginStart="20dp"
         android:layout_marginTop="30dp"
         android:layout_marginEnd="20dp"
-        android:background="@drawable/dialog_background"
+        android:background="@drawable/dialog_background_gul"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:textColor="@color/black"
+            android:textColor="@color/darkblue"
             />
 
         <LinearLayout
@@ -40,6 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
+                android:textColor="@color/darkblue"
                 android:text="@string/ok" />
 
             <Button
@@ -48,7 +49,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:text="@string/view_collection_button" />
+                android:text="@string/view_collection_button"
+                android:textColor="@color/darkblue"
+                />
 
         </LinearLayout>
     </LinearLayout>
