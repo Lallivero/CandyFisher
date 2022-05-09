@@ -12,6 +12,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Design.NoActionBar">
+        <service
+            android:name=".services.MusicService"
+            android:exported="false"></service>
+
         <activity
             android:name=".activities.ItemDetailsActivity"
             android:exported="false" />
@@ -26,6 +30,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

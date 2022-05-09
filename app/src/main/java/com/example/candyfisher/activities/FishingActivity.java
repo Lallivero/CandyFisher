@@ -8,6 +8,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,6 +50,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private final boolean orientationMode = true;
 
+    private int failSound;
+    private int throwSound;
+    private int successSound;
+    private int timerSound;
+
+    private SoundPool soundPool;
+    private boolean soundLoaded;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +75,23 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         } else {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
-
         }
+
+        AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.
+                USAGE_ASSISTANCE_SONIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
+
+        soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> soundLoaded = true);
+
+        failSound = soundPool.load(this, R.raw.fail, 1);
+        throwSound = soundPool.load(this, R.raw.throw_sound, 1);
+        successSound = soundPool.load(this, R.raw.success, 1);
+        timerSound = soundPool.load(this, R.raw.timer, 1);
+
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+        soundLoaded = true;
         mImageView = findViewById(R.id.background_image);
         model = new FishingGameModel(orientationMode);
 
@@ -94,6 +120,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         //If we detect a successful throw, start fishing.
         if (model.checkSuccessfulThrow()) {
             model.startFishing();
+            playSound(throwSound);
             //Sound effect here when throwing
             Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
@@ -112,6 +139,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (model.biteEligible()) {
             //Sound effect here when you get a bite
             model.bite();
+            playSound(timerSound);
             //Needs to be asynchronous in order to vibrate three times without locking UI thread
             AsyncVibration asyncVibration = new AsyncVibration();
             asyncVibration.execute(asyncTaskParameters);
@@ -131,6 +159,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
      */
     private void onFailedCatch() {
         changeBackground(model.getCurrentlyFishing());
+        playSound(failSound);
         int FAILED_CATCH_VALUE = -1;
         showPopUp(FAILED_CATCH_VALUE);
         Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
@@ -143,6 +172,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     */
     private void onCatch() {
         changeBackground(model.getCurrentlyFishing());
+        playSound(successSound);
         int catchIndex = model.getCatch().ordinal();
         myCollectionViewModel.incrementCollected(catchIndex);
         showPopUp(catchIndex);
@@ -259,6 +289,20 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             }
             return null;
         }
+
+
+    }
+
+    private void playSound(int sound) {
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        float currentVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        //Normalise since soundPool.play() requires a value between 0.0 and 1.0 for volume
+        float normalisedVolume = currentVolume / maxVolume;
+        if(soundLoaded)
+            soundPool.play(sound, normalisedVolume, normalisedVolume, 1, 0, 1f);
+
+
     }
 
 }

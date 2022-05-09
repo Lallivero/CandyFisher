@@ -78,7 +78,7 @@ public class FishingGameModel {
     }
 
     public boolean pastBiteTime() {
-        long biteDuration = 2000;
+        long biteDuration = 3000;
         return bite && System.currentTimeMillis() - biteTime > biteDuration;
     }
 
