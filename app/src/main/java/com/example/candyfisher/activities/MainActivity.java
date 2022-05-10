@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mediaPlayer = MediaPlayer.create(this, R.raw.waltz);
-        mediaPlayer.setVolume(0.3f, 0.3f);
+        mediaPlayer.setVolume(0.2f, 0.2f);
         mediaPlayer.setLooping(true);
         mediaPlayer.start(); // no need to call prepare(); create() does that for you
         playing = true;

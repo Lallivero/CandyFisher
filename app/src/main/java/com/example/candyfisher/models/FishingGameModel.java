@@ -46,8 +46,8 @@ public class FishingGameModel {
             values = new float[3];
         }
         fifo = new Fifo();
-        fifo.push(Tilt.LEFT);
-        fifo.push(Tilt.LEFT);
+//        fifo.push(Tilt.LEFT);
+//        fifo.push(Tilt.LEFT);
     }
 
     public void startFishing() {
@@ -152,7 +152,7 @@ public class FishingGameModel {
         if (tilt != previousTilt) {
             fifo.push(tilt);
         }
-        Log.i(TAG, "setTiltRotation: " + fifo.toString());
+//        Log.i(TAG, "setTiltRotation: " + fifo.toString());
     }
 
     //Sets the tilt to discrete values depending on the current sensor values.
