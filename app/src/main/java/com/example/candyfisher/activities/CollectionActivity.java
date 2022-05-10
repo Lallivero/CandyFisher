@@ -28,6 +28,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private CollectionViewModel collectionViewModel;
     private boolean reading = false;
     private NfcAdapter nfcAdapter;
+    private ArrayList<CollectionListData> nonZeroValueList;
     private static final String TAG = "CollectionActivity";
 
     @Override
@@ -43,12 +44,24 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         collectionViewModel.getCollectionListData().observe(this, this::initialiseView);
     }
 
+    private void getNonZeroCollection(ArrayList<CollectionListData> collectionListData) {
+        nonZeroValueList = new ArrayList<>();
+        for (CollectionListData data : collectionListData) {
+            if (data.getNumCollected() != 0) {
+                nonZeroValueList.add(data);
+            }
+        }
+
+    }
+
     private void initialiseView(ArrayList<CollectionListData> collectionListData) {
+
 
         RecyclerView recyclerView = findViewById(R.id.collection_view);
 //        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData,
 //                index -> myCollectionViewModel.decrementCollected(index));
-        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData,
+        nonZeroValueList = collectionViewModel.getNonZeroListData().getValue();
+        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(nonZeroValueList,
                 this::toDetailsActivity);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -107,7 +120,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             String message = Utils.readNFC(tag);
             assert message != null;
             int itemIndex = Integer.parseInt(message);
-            if(itemIndex < Candies.values().length){
+            if (itemIndex < Candies.values().length) {
                 runOnUiThread(() -> collectionViewModel.incrementCollected(itemIndex));
                 Utils.writeNFC(tag, "");
             }

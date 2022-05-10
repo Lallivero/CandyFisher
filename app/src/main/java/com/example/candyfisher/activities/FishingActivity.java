@@ -2,6 +2,7 @@ package com.example.candyfisher.activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
@@ -97,6 +98,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
 
+
+
     }
 
     //Vibrate the phone, use AsyncVibration for multiple vibrations
@@ -122,7 +125,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             model.startFishing();
             playSound(throwSound);
             //Sound effect here when throwing
-            Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
             changeBackground(model.getCurrentlyFishing());
             //If we catch something successfully register that (Might be some redundancy here)
         } else if (model.checkSuccessfulCatch()) {
@@ -162,7 +165,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         playSound(failSound);
         int FAILED_CATCH_VALUE = -1;
         showPopUp(FAILED_CATCH_VALUE);
-        Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -176,7 +179,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         int catchIndex = model.getCatch().ordinal();
         myCollectionViewModel.incrementCollected(catchIndex);
         showPopUp(catchIndex);
-        Toast.makeText(this, myCollectionViewModel.getItemDescription(catchIndex), Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, myCollectionViewModel.getItemDescription(catchIndex), Toast.LENGTH_SHORT).show();
 
     }
 
@@ -224,7 +227,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             textView.setText("Oof, that one got away!");
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setImageResource(R.drawable.cross);
-            //Success state dialog
+        //Success state dialog
         } else {
             imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
 
@@ -235,8 +238,15 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
-        Button button = alertCustomDialog.findViewById(R.id.ok_button);
-        button.setOnClickListener(view -> {
+        Button okButton = alertCustomDialog.findViewById(R.id.ok_button);
+        Button collectionButton = alertCustomDialog.findViewById(R.id.collection_button);
+        collectionButton.setOnClickListener(view -> {
+            Intent intent = new Intent(this, CollectionActivity.class);
+            startActivity(intent);
+            finish();
+
+        });
+        okButton.setOnClickListener(view -> {
             if (orientationMode)
                 sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
             else

@@ -39,6 +39,17 @@ public class CollectionViewModel extends AndroidViewModel {
         return collectionListData;
     }
 
+    public LiveData<ArrayList<CollectionListData>> getNonZeroListData(){
+        MutableLiveData<ArrayList<CollectionListData>> tempData = new MutableLiveData<>();
+        tempData.setValue(new ArrayList<>());
+        for (CollectionListData data : Objects.requireNonNull(getCollectionListData().getValue())) {
+            if (data.getNumCollected() != 0) {
+                Objects.requireNonNull(tempData.getValue()).add(data);
+            }
+        }
+        return tempData;
+    }
+
     //Loads data from sharedPreferences
     private void loadData() {
         collectionListData.setValue(candyToCollectionListData(SharedPreferenceAccess.getCandies()));
@@ -49,9 +60,19 @@ public class CollectionViewModel extends AndroidViewModel {
         ArrayList<CollectionListData> collection = new ArrayList<>();
         for (int i = 0; i < candies.size(); i++) {
             String capitalisedCandyName = Candies.values()[i].toString();
+            String[] nameParts = capitalisedCandyName.split("_");
+            StringBuilder finishedCandyName = new StringBuilder();
+            for (int j = 0; j < nameParts.length; j++) {
+                if (nameParts[j].equals("AND"))
+                    finishedCandyName.append("&");
+                else
+                    finishedCandyName.append(nameParts[j].charAt(0)).append(nameParts[j].substring(1).toLowerCase());
+                if (j != nameParts.length - 1)
+                    finishedCandyName.append(" ");
+            }
             String formattedCandyName = capitalisedCandyName.charAt(0) + capitalisedCandyName.substring(1).toLowerCase();
             String imageName = "candy" + (i + 1);
-            collection.add(new CollectionListData(formattedCandyName, getImageFromString(imageName), SharedPreferenceAccess.getNumCollected(i)));
+            collection.add(new CollectionListData(finishedCandyName.toString(), getImageFromString(imageName), SharedPreferenceAccess.getNumCollected(i)));
         }
         return collection;
     }
@@ -91,6 +112,7 @@ public class CollectionViewModel extends AndroidViewModel {
         loadData();
 
     }
+
 
 //    //Returns weather or not a candy has been collected
 //    public Boolean getCollectedStatus(int index) {

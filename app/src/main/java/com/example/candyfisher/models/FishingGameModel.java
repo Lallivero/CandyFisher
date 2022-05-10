@@ -31,6 +31,8 @@ public class FishingGameModel {
     private long biteDelay;
 
     private final boolean orientationMode;
+    private long initialiseTime;
+    private boolean rotationOk = false;
 
 
     public FishingGameModel(boolean orientation) {
@@ -39,10 +41,13 @@ public class FishingGameModel {
             values = new float[4];
             orientationValues = new float[3];
             rotationMatrix = new float[9];
+            initialiseTime = System.currentTimeMillis();
         } else if (values == null) {
             values = new float[3];
         }
         fifo = new Fifo();
+        fifo.push(Tilt.LEFT);
+        fifo.push(Tilt.LEFT);
     }
 
     public void startFishing() {
@@ -65,9 +70,14 @@ public class FishingGameModel {
 
     public void setValues(float[] values) {
         this.values = values;
-        if (orientationMode) {
+        if (!rotationOk) {
+            if (System.currentTimeMillis() - initialiseTime > 500) {
+                rotationOk = true;
+            }
+        } else if (orientationMode) {
             SensorManager.getRotationMatrixFromVector(rotationMatrix, values);
             SensorManager.getOrientation(rotationMatrix, orientationValues);
+
             setTiltRotation();
         } else
             setTilt();
@@ -90,7 +100,6 @@ public class FishingGameModel {
     public void bite() {
         biteTime = System.currentTimeMillis();
         bite = true;
-
     }
 
     //If the tilt-fifo contains either of the two "correct" patterns for a throw and we are not currently fishing, return true
@@ -132,9 +141,10 @@ public class FishingGameModel {
     }
 
     private void setTiltRotation() {
+
         float tiltSensitivity = 0.5f;
         previousTilt = tilt;
-        if (Math.abs(Math.PI/2f - Math.abs(orientationValues[1])) < tiltSensitivity) {
+        if (Math.abs(Math.PI / 2f - Math.abs(orientationValues[1])) < tiltSensitivity) {
             tilt = Tilt.UPRIGHT;
         } else if (Math.abs(orientationValues[1]) < tiltSensitivity) {
             tilt = Tilt.FACEUP;
@@ -142,7 +152,7 @@ public class FishingGameModel {
         if (tilt != previousTilt) {
             fifo.push(tilt);
         }
-        Log.i(TAG, "setTiltRotation: " + orientationValues[1]);
+        Log.i(TAG, "setTiltRotation: " + fifo.toString());
     }
 
     //Sets the tilt to discrete values depending on the current sensor values.

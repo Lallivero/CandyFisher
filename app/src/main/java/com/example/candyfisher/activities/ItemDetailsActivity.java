@@ -21,6 +21,7 @@ import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter.ReaderCallback {
 
@@ -47,7 +48,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             itemIndex = extras.getInt("Item_index");
 
         collectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
-        ArrayList<CollectionListData> myList = collectionViewModel.getCollectionListData().getValue();
         collectionViewModel.getCollectionListData().observe(this, this::initialiseViews);
         Log.i(TAG, "onCreate: " + String.valueOf(collectionViewModel.getImageId(itemIndex)));
         imageView = findViewById(R.id.details_candy_image);
@@ -65,9 +65,13 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     }
 
     private void initialiseViews(ArrayList<CollectionListData> collectionListData) {
-        imageView.setImageResource(collectionViewModel.getImageId(itemIndex));
-        nameText.setText(collectionViewModel.getItemDescription(itemIndex));
-        numCollected.setText(String.valueOf(collectionViewModel.getNumCollected(itemIndex)));
+        CollectionListData myData = Objects.requireNonNull(collectionViewModel.getNonZeroListData().getValue()).get(itemIndex);
+        imageView.setImageResource(myData.getImageId());
+        nameText.setText(myData.getDescription());
+        numCollected.setText(String.valueOf(myData.getNumCollected()));
+//        imageView.setImageResource(collectionViewModel.getImageId(itemIndex));
+//        nameText.setText(collectionViewModel.getItemDescription(itemIndex));
+//        numCollected.setText(String.valueOf(collectionViewModel.getNumCollected(itemIndex)));
         button.setOnClickListener(view -> setWriteMode());
     }
 

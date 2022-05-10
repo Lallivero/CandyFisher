@@ -7,6 +7,20 @@
     android:background="#FFCF7195"
     tools:context=".activities.MainActivity">
 
+    <ImageButton
+        android:id="@+id/mute_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Volume on and off"
+        android:onClick="pauseMusic"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_round_volume_off_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageView_mascot"
         android:layout_width="match_parent"
@@ -24,13 +38,15 @@
         android:id="@+id/textView_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="112dp"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="@font/bubble"
         android:text="@string/candyfisherTitleText"
         android:textAllCaps="true"
         android:textColor="@color/gul"
-        android:textSize="60sp"
+        android:textSize="50sp"
         android:textStyle="bold"
-        android:fontFamily="@font/bubble"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
