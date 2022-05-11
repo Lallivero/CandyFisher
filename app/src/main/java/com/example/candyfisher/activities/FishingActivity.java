@@ -1,6 +1,7 @@
 package com.example.candyfisher.activities;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -17,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +32,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.candyfisher.R;
 import com.example.candyfisher.models.FishingGameModel;
 import com.example.candyfisher.viewModels.CollectionViewModel;
+//import com.tomer.fadingtextview.FadingTextView;
 
 
 public class FishingActivity extends AppCompatActivity implements SensorEventListener {
@@ -38,6 +41,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private FishingGameModel model;
 
+    Dialog myDialog;
+
+   // FadingTextView fadingTextView;
+    //String[] text = {"Failed throw", "Throw the rod"};
 
     private SensorManager sensorManager;
     private Sensor accelerometer;
@@ -64,6 +71,12 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fishing);
+        myDialog = new Dialog(this);
+
+
+       // fadingTextView = findViewById(R.id.fadingView);
+        //fadingTextView.setTexts(text);
+
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData();
 
@@ -100,6 +113,19 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
 
 
+    }
+
+    public void ShowPopUp(View v){
+        TextView txtClose;
+        myDialog.setContentView(R.layout.popup);
+        txtClose = (TextView) myDialog.findViewById(R.id.close);
+        txtClose.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                myDialog.dismiss();
+            }
+        });
+        myDialog.show();
     }
 
     //Vibrate the phone, use AsyncVibration for multiple vibrations

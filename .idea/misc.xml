@@ -19,13 +19,17 @@
         <entry key="..\:/Users/Larss/StudioProjects/CandyFisher/app/src/main/res/layout/list_item_card.xml" value="0.13496376811594202" />
         <entry key="app/src/main/res/drawable/dialog_background_blue.xml" value="0.207" />
         <entry key="app/src/main/res/drawable/dialog_background_gul.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/popup.xml" value="0.202" />
+        <entry key="app/src/main/res/drawable/round_button_.xml" value="0.202" />
         <entry key="app/src/main/res/layout/activity_collection.xml" value="0.15936737060546874" />
+        <entry key="app/src/main/res/layout/activity_fishing.xml" value="0.3506622314453125" />
         <entry key="app/src/main/res/layout/activity_item_details.xml" value="0.1453804347826087" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.26851275900135874" />
         <entry key="app/src/main/res/layout/dialog_layout.xml" value="0.4576088283372962" />
         <entry key="app/src/main/res/layout/fragment_bite.xml" value="0.1755030314127604" />
         <entry key="app/src/main/res/layout/fragment_failed_throw.xml" value="0.18346150716145831" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.203125" />
+        <entry key="app/src/main/res/layout/popup.xml" value="0.3188854489164087" />
       </map>
     </option>
   </component>
