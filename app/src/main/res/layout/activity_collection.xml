@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/lila"
     android:orientation="vertical"
     tools:context=".activities.CollectionActivity">
 
@@ -18,10 +19,16 @@
 
     <Button
         android:id="@+id/recieve_button"
-        android:layout_width="match_parent"
+        android:layout_width="248dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="75dp"
+        android:layout_marginRight="75dp"
+        android:layout_marginBottom="32dp"
+        android:background="@drawable/dialog_background_blue"
         android:onClick="readClick"
-        android:text="Receive" />
+        android:text="Receive"
+        android:textColor="@color/gul" />
 
 </RelativeLayout>

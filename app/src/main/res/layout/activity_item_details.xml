@@ -9,7 +9,8 @@
     android:layout_marginEnd="10dp"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".activities.ItemDetailsActivity">
+    tools:context=".activities.ItemDetailsActivity"
+    android:background="@color/gul">
 
     <ImageView
         android:id="@+id/details_candy_image"
@@ -26,6 +27,8 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:text="CandyName"
+        android:textSize="20sp"
+        android:textColor="@color/darkblue"
         android:textAlignment="center" />
 
     <TextView
@@ -35,6 +38,8 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:text="NumCollected"
+        android:textSize="20sp"
+        android:textColor="@color/darkblue"
         android:textAlignment="center" />
 
     <Button
@@ -43,6 +48,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:layout_weight="0"
-        android:text="Share" />
+        android:text="Share"
+        android:textSize="20sp"
+        android:background="@drawable/dialog_background_blue"
+        android:textColor="@color/gul"/>
 
 </LinearLayout>
