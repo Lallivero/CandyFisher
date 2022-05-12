@@ -57,10 +57,10 @@ public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public ImageView imageView;
-        public TextView textView;
-        public TextView textView2;
-        public RelativeLayout relativeLayout;
+        public final ImageView imageView;
+        public final TextView textView;
+        public final TextView textView2;
+        public final RelativeLayout relativeLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

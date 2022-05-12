@@ -109,5 +109,7 @@
     <string name="view_collection_button">Collection</string>
     <string name="cancel_string">Cancel</string>
     <string name="searching_for_tag_string">Searching for Tag</string>
+    <string name="volume_on_and_off_description">Volume on and off</string>
+    <string name="receive_text">Receive</string>
 
 </resources>

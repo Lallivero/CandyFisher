@@ -42,9 +42,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     Dialog myDialog;
 
-   // FadingTextView fadingTextView;
-    //String[] text = {"Failed throw", "Throw the rod"};
-
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor orientationVector;
@@ -72,9 +69,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         setContentView(R.layout.activity_fishing);
         myDialog = new Dialog(this);
 
-
-       // fadingTextView = findViewById(R.id.fadingView);
-        //fadingTextView.setTexts(text);
 
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData();
@@ -122,12 +116,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         myDialog.setContentView(R.layout.popup);
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         txtClose = (TextView) myDialog.findViewById(R.id.close);
-        txtClose.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                myDialog.dismiss();
-            }
-        });
+        txtClose.setOnClickListener(v1 -> myDialog.dismiss());
         myDialog.show();
     }
 
@@ -295,10 +284,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     }
 
     private static class AsyncTaskParameters {
-        Vibrator vibrator;
-        int numVibes;
-        long vibrationDelay;
-        long vibrationDuration;
+        final Vibrator vibrator;
+        final int numVibes;
+        final long vibrationDelay;
+        final long vibrationDuration;
 
         AsyncTaskParameters(int numVibes, long vibrationDelay, long vibrationDuration, Vibrator vibrator) {
             this.numVibes = numVibes;

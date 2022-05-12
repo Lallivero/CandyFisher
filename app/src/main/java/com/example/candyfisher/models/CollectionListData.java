@@ -4,7 +4,7 @@ public class CollectionListData {
     private int collected;
     private int imageId;
     private String description;
-    private int realIndex;
+    private final int realIndex;
 
     public CollectionListData(String description, int imageId, int collected, int realIndex) {
         this.description = description;

@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.nfc.NfcAdapter;
@@ -57,7 +56,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 
         collectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         collectionViewModel.getCollectionListData().observe(this, this::initialiseViews);
-        Log.i(TAG, "onCreate: " + String.valueOf(collectionViewModel.getImageId(itemIndex)));
+        Log.i(TAG, "onCreate: " + collectionViewModel.getImageId(itemIndex));
         imageView = findViewById(R.id.details_candy_image);
         nameText = findViewById(R.id.details_candy_name);
         numCollected = findViewById(R.id.details_num_collected);
@@ -81,9 +80,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             imageView.setImageResource(myDataCollection.get(itemIndex).getImageId());
             nameText.setText(myDataCollection.get(itemIndex).getDescription());
             numCollected.setText(String.valueOf(myDataCollection.get(itemIndex).getNumCollected()));
-//        imageView.setImageResource(collectionViewModel.getImageId(itemIndex));
-//        nameText.setText(collectionViewModel.getItemDescription(itemIndex));
-//        numCollected.setText(String.valueOf(collectionViewModel.getNumCollected(itemIndex)));
             button.setOnClickListener(view -> setWriteMode());
         }
 
@@ -149,8 +145,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         final AlertDialog dialog = alert.create();
         LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
-//        textView.setTextColor(getResources().getColor(R.color.gul));
-//        layout.setBackground(getResources().getDrawable(R.drawable.dialog_background_blue));
         Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
 
         myButton.setOnClickListener(view -> {

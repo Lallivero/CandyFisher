@@ -28,7 +28,7 @@
 <!--        android:layout_centerInParent="true"/>-->
 
     <Button
-        android:id="@+id/recieve_button"
+        android:id="@+id/receive_button"
         android:layout_width="248dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -37,7 +37,7 @@
         android:layout_marginBottom="22dp"
         android:background="@drawable/dialog_background_blue"
         android:onClick="readClick"
-        android:text="Receive"
+        android:text="@string/receive_text"
         android:textColor="@color/yellow" />
 
 </RelativeLayout>

@@ -5,7 +5,6 @@ import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.util.Log;
 
 import java.io.IOException;
 

@@ -2,7 +2,6 @@ package com.example.candyfisher.models;
 
 
 import android.hardware.SensorManager;
-import android.util.Log;
 
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;

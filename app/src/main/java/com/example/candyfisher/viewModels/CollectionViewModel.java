@@ -2,12 +2,10 @@ package com.example.candyfisher.viewModels;
 
 import android.app.Application;
 
-import androidx.appcompat.content.res.AppCompatResources;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.candyfisher.R;
 import com.example.candyfisher.models.CollectionListData;
 import com.example.candyfisher.models.SharedPreferenceAccess;
 import com.example.candyfisher.utils.Candies;
@@ -23,10 +21,6 @@ public class CollectionViewModel extends AndroidViewModel {
     public CollectionViewModel(Application application) {
         super(application);
         SharedPreferenceAccess.initialise(getApplication());
-//        if (collectionListData == null) {
-//            collectionListData = new MutableLiveData<>();
-//            loadData();
-//        }
     }
 
     //Returns an immutable version of the data
@@ -70,7 +64,6 @@ public class CollectionViewModel extends AndroidViewModel {
                 if (j != nameParts.length - 1)
                     finishedCandyName.append(" ");
             }
-            String formattedCandyName = capitalisedCandyName.charAt(0) + capitalisedCandyName.substring(1).toLowerCase();
             String imageName = "candy" + (i + 1);
             collection.add(new CollectionListData(finishedCandyName.toString(), getImageFromString(imageName), SharedPreferenceAccess.getNumCollected(i), i));
         }
@@ -111,18 +104,6 @@ public class CollectionViewModel extends AndroidViewModel {
         SharedPreferenceAccess.decrementCollected(index);
         loadData();
 
-    }
-
-
-//    //Returns weather or not a candy has been collected
-//    public Boolean getCollectedStatus(int index) {
-//        return Objects.requireNonNull(collectionListData.getValue()).get(index).getCollected();
-//    }
-
-    //Set database values
-    public void swapCollected(int index) {
-        SharedPreferenceAccess.swapCollected(index);
-        loadData();
     }
 
 }

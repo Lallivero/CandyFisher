@@ -20,14 +20,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -37,7 +32,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private CollectionViewModel collectionViewModel;
     private boolean reading = false;
     private NfcAdapter nfcAdapter;
-    private ArrayList<CollectionListData> nonZeroValueList;
     private static final String TAG = "CollectionActivity";
 //    private ProgressBar spinner;
 
@@ -47,8 +41,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         setContentView(R.layout.activity_collection);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-//        spinner = findViewById(R.id.progressBar);
-//        spinner.setVisibility(View.INVISIBLE);
         refreshUI();
     }
 
@@ -61,9 +53,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
 
 
         RecyclerView recyclerView = findViewById(R.id.collection_view);
-//        CollectionListAdapter collectionListAdapter = new CollectionListAdapter(collectionListData,
-//                index -> myCollectionViewModel.decrementCollected(index));
-        nonZeroValueList = collectionViewModel.getNonZeroListData().getValue();
+        ArrayList<CollectionListData> nonZeroValueList = collectionViewModel.getNonZeroListData().getValue();
         CollectionListAdapter collectionListAdapter = new CollectionListAdapter(nonZeroValueList,
                 this::toDetailsActivity);
         recyclerView.setHasFixedSize(true);
