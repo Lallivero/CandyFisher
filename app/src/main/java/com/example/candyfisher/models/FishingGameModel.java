@@ -45,9 +45,10 @@ public class FishingGameModel {
         } else if (values == null) {
             values = new float[3];
         }
+        //Create and prepopulate fifo in order to make weird startups more infrequent
         fifo = new Fifo();
-//        fifo.push(Tilt.LEFT);
-//        fifo.push(Tilt.LEFT);
+        fifo.push(Tilt.LEFT);
+        fifo.push(Tilt.LEFT);
     }
 
     public void startFishing() {

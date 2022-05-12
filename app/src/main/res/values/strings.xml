@@ -4,7 +4,7 @@
     <string name="go_fish_text">Go Fish!</string>
     <string name="happy_candy_description">Happy candy</string>
     <string name="title_activity_collection">CollectionActivity</string>
-    <string name="questionmark">\?</string>
+    <string name="question_mark"> \?</string>
     <string name="large_text">
 
 
@@ -107,5 +107,7 @@
     <string name="ok">Play Again!</string>
     <string name="catchDialogText">Yay! You caught a</string>
     <string name="view_collection_button">Collection</string>
+    <string name="cancel_string">Cancel</string>
+    <string name="searching_for_tag_string">Searching for Tag</string>
 
 </resources>

@@ -24,7 +24,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -83,6 +82,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (orientationMode) {
             orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+            if(orientationVector == null) {
+
+            }
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
 
 
@@ -118,6 +120,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     public void ShowPopUp(View v){
         TextView txtClose;
         myDialog.setContentView(R.layout.popup);
+        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         txtClose = (TextView) myDialog.findViewById(R.id.close);
         txtClose.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -246,8 +249,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
-        imageView = alertCustomDialog.findViewById(R.id.catch_image);
-        textView = alertCustomDialog.findViewById(R.id.dialog_candy_text);
+        imageView = alertCustomDialog.findViewById(R.id.progressBar);
+        textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
         //This is the failure state dialog
         if (catchIndex == -1) {
             textView.setText("Oof, that one got away!");
@@ -264,7 +267,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
-        Button okButton = alertCustomDialog.findViewById(R.id.ok_button);
+        Button okButton = alertCustomDialog.findViewById(R.id.cancel_button);
         Button collectionButton = alertCustomDialog.findViewById(R.id.collection_button);
         collectionButton.setOnClickListener(view -> {
             Intent intent = new Intent(this, CollectionActivity.class);

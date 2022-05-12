@@ -6,10 +6,11 @@ public class CollectionListData {
     private String description;
     private int realIndex;
 
-    public CollectionListData(String description, int imageId, int collected) {
+    public CollectionListData(String description, int imageId, int collected, int realIndex) {
         this.description = description;
         this.imageId = imageId;
         this.collected = collected;
+        this.realIndex = realIndex;
     }
 
     public void incrementCollected() {
@@ -39,5 +40,7 @@ public class CollectionListData {
     public int getImageId() {
         return imageId;
     }
+
+    public int getRealIndex(){return realIndex;}
 
 }

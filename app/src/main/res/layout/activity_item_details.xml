@@ -10,7 +10,7 @@
     android:gravity="center"
     android:orientation="vertical"
     tools:context=".activities.ItemDetailsActivity"
-    android:background="@color/gul">
+    android:background="@color/yellow">
 
     <ImageView
         android:id="@+id/details_candy_image"
@@ -28,7 +28,7 @@
         android:layout_weight="0"
         android:text="CandyName"
         android:textSize="20sp"
-        android:textColor="@color/darkblue"
+        android:textColor="@color/dark_blue"
         android:textAlignment="center" />
 
     <TextView
@@ -39,7 +39,7 @@
         android:layout_weight="0"
         android:text="NumCollected"
         android:textSize="20sp"
-        android:textColor="@color/darkblue"
+        android:textColor="@color/dark_blue"
         android:textAlignment="center" />
 
     <Button
@@ -51,6 +51,6 @@
         android:text="Share"
         android:textSize="20sp"
         android:background="@drawable/dialog_background_blue"
-        android:textColor="@color/gul"/>
+        android:textColor="@color/yellow"/>
 
 </LinearLayout>

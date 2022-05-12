@@ -72,7 +72,7 @@ public class CollectionViewModel extends AndroidViewModel {
             }
             String formattedCandyName = capitalisedCandyName.charAt(0) + capitalisedCandyName.substring(1).toLowerCase();
             String imageName = "candy" + (i + 1);
-            collection.add(new CollectionListData(finishedCandyName.toString(), getImageFromString(imageName), SharedPreferenceAccess.getNumCollected(i)));
+            collection.add(new CollectionListData(finishedCandyName.toString(), getImageFromString(imageName), SharedPreferenceAccess.getNumCollected(i), i));
         }
         return collection;
     }

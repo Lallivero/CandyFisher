@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeightLarge"
+    android:layout_height="100dp"
     android:layout_marginHorizontal="20dp"
     android:layout_marginBottom="15dp"
     android:background="@drawable/dialog_background_gul">
@@ -12,11 +12,8 @@
         android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-
         android:layout_centerVertical="true"
         android:layout_marginStart="15dp"
-
-
         android:contentDescription="Icon" />
 
     <TextView
@@ -25,7 +22,7 @@
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
         android:gravity="center"
-        android:textColor="@color/darkblue"
+        android:textColor="@color/dark_blue"
         android:textSize="16sp" />
 
 
@@ -37,6 +34,6 @@
         android:layout_marginEnd="40dp"
         android:gravity="center_vertical"
         android:text="TextView"
-        android:textColor="@color/darkblue" />
+        android:textColor="@color/dark_blue" />
 
 </RelativeLayout>

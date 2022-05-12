@@ -13,12 +13,21 @@ import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -30,28 +39,22 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private NfcAdapter nfcAdapter;
     private ArrayList<CollectionListData> nonZeroValueList;
     private static final String TAG = "CollectionActivity";
+//    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+//        spinner = findViewById(R.id.progressBar);
+//        spinner.setVisibility(View.INVISIBLE);
         refreshUI();
     }
 
     private void refreshUI() {
         collectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         collectionViewModel.getCollectionListData().observe(this, this::initialiseView);
-    }
-
-    private void getNonZeroCollection(ArrayList<CollectionListData> collectionListData) {
-        nonZeroValueList = new ArrayList<>();
-        for (CollectionListData data : collectionListData) {
-            if (data.getNumCollected() != 0) {
-                nonZeroValueList.add(data);
-            }
-        }
-
     }
 
     private void initialiseView(ArrayList<CollectionListData> collectionListData) {
@@ -76,6 +79,8 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
 
     public void readClick(View view) {
         reading = !reading;
+        showPopup();
+//        spinner.setVisibility((reading ? View.VISIBLE : View.INVISIBLE));
         Toast.makeText(this, reading ? "Reading" : "Stopped Reading", Toast.LENGTH_SHORT).show();
     }
 
@@ -125,6 +130,25 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
                 Utils.writeNFC(tag, "");
             }
             reading = false;
+//            spinner.setVisibility(View.INVISIBLE);
         }
+    }
+
+    private void showPopup(){
+
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        final AlertDialog dialog = alert.create();
+        Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
+        myButton.setOnClickListener(view -> {
+            reading = false;
+            dialog.dismiss();
+
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
     }
 }

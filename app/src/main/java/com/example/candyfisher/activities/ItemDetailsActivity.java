@@ -3,14 +3,21 @@ package com.example.candyfisher.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 
 import android.os.Bundle;
 import android.util.Log;
 
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +44,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     private TextView numCollected;
     private Button button;
 
+    private ArrayList<CollectionListData> myDataCollection;
     private int itemIndex;
 
     @Override
@@ -65,24 +73,30 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     }
 
     private void initialiseViews(ArrayList<CollectionListData> collectionListData) {
-        CollectionListData myData = Objects.requireNonNull(collectionViewModel.getNonZeroListData().getValue()).get(itemIndex);
-        imageView.setImageResource(myData.getImageId());
-        nameText.setText(myData.getDescription());
-        numCollected.setText(String.valueOf(myData.getNumCollected()));
+        myDataCollection = Objects.requireNonNull(collectionViewModel.getNonZeroListData().getValue());
+        if(myDataCollection.size() < itemIndex + 1){
+            itemIndex = myDataCollection.size()-1;
+            onBackPressed();
+        }else {
+            imageView.setImageResource(myDataCollection.get(itemIndex).getImageId());
+            nameText.setText(myDataCollection.get(itemIndex).getDescription());
+            numCollected.setText(String.valueOf(myDataCollection.get(itemIndex).getNumCollected()));
 //        imageView.setImageResource(collectionViewModel.getImageId(itemIndex));
 //        nameText.setText(collectionViewModel.getItemDescription(itemIndex));
 //        numCollected.setText(String.valueOf(collectionViewModel.getNumCollected(itemIndex)));
-        button.setOnClickListener(view -> setWriteMode());
+            button.setOnClickListener(view -> setWriteMode());
+        }
+
     }
 
     public void setWriteMode() {
-        if (collectionViewModel.getNumCollected(itemIndex) != 0) {
+        if (myDataCollection.get(itemIndex).getNumCollected() != 0 && myDataCollection.size() > 1) {
             writing = !writing;
+            showPopup();
             Toast.makeText(this, writing ? "Sharing!" : "Not Sharing!", Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(this, "You can't share what you don't have!", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -115,14 +129,38 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     @Override
     public void onTagDiscovered(Tag tag) {
         if (writing) {
-            boolean sent = Utils.writeNFC(tag, String.valueOf(itemIndex));
+            boolean sent = Utils.writeNFC(tag, String.valueOf(myDataCollection.get(itemIndex).getRealIndex()));
             if (sent) {
                 runOnUiThread(() -> {
-                    Log.i(TAG, "onTagDiscovered: here i am");
-                    collectionViewModel.decrementCollected(itemIndex);
+                    Log.i(TAG, "onTagDiscovered: tag discovered");
+
+                    collectionViewModel.decrementCollected(myDataCollection.get(itemIndex).getRealIndex());
                 });
                 writing = false;
             }
         }
+    }
+
+    private void showPopup(){
+
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        final AlertDialog dialog = alert.create();
+        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
+        TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
+//        textView.setTextColor(getResources().getColor(R.color.gul));
+//        layout.setBackground(getResources().getDrawable(R.drawable.dialog_background_blue));
+        Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
+
+        myButton.setOnClickListener(view -> {
+            writing = false;
+            dialog.dismiss();
+
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
     }
 }

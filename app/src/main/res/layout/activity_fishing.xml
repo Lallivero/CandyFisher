@@ -20,41 +20,21 @@
         app:srcCompat="@drawable/not_fishing" />
 
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="250dp">
-
-    </FrameLayout>
-
-
-
-    <ImageView
-        android:id="@+id/testImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="invisible"
-        app:srcCompat="@drawable/candy1" />
-
     <Button
         android:id="@+id/button2"
-        android:layout_width="wrap_content"
-        android:layout_height="86dp"
-        android:layout_alignParentLeft="false"
-        android:layout_alignParentRight="false"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="false"
-        android:layout_marginLeft="310dp"
-        android:layout_marginTop="630dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/round_button_"
         android:fontFamily="@font/question"
         android:onClick="ShowPopUp"
-        android:text="@string/questionmark"
+        android:text="@string/question_mark"
         android:textAlignment="gravity"
-        android:textColor="@color/gul"
-        android:textSize="70dp" />
+        android:textColor="@color/yellow"
+        android:textSize="50sp" />
 
 </RelativeLayout>
