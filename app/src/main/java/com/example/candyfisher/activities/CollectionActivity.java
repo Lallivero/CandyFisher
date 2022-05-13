@@ -33,6 +33,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private boolean reading = false;
     private NfcAdapter nfcAdapter;
     private static final String TAG = "CollectionActivity";
+    private AlertDialog dialog;
 //    private ProgressBar spinner;
 
     @Override
@@ -71,7 +72,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         reading = !reading;
         showPopup();
 //        spinner.setVisibility((reading ? View.VISIBLE : View.INVISIBLE));
-        Toast.makeText(this, reading ? "Reading" : "Stopped Reading", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, reading ? "Reading" : "Stopped Reading", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -119,6 +120,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
                 runOnUiThread(() -> collectionViewModel.incrementCollected(itemIndex));
                 Utils.writeNFC(tag, "");
             }
+            dialog.dismiss();
             reading = false;
 //            spinner.setVisibility(View.INVISIBLE);
         }
@@ -129,7 +131,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
-        final AlertDialog dialog = alert.create();
+        dialog = alert.create();
         Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
         myButton.setOnClickListener(view -> {
             reading = false;

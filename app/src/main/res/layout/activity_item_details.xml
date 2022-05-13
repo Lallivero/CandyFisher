@@ -5,20 +5,17 @@
     android:id="@+id/details_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginStart="10dp"
-    android:layout_marginEnd="10dp"
+    android:background="@color/yellow"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".activities.ItemDetailsActivity"
-    android:background="@color/yellow">
+    tools:context=".activities.ItemDetailsActivity">
 
     <ImageView
         android:id="@+id/details_candy_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="0"
-        app:srcCompat="@drawable/candy1"
-        />
+        app:srcCompat="@drawable/candy1" />
 
     <TextView
         android:id="@+id/details_candy_name"
@@ -27,9 +24,9 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:text="CandyName"
-        android:textSize="20sp"
+        android:textAlignment="center"
         android:textColor="@color/dark_blue"
-        android:textAlignment="center" />
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/details_num_collected"
@@ -38,9 +35,9 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:text="NumCollected"
-        android:textSize="20sp"
+        android:textAlignment="center"
         android:textColor="@color/dark_blue"
-        android:textAlignment="center" />
+        android:textSize="20sp" />
 
     <Button
         android:id="@+id/share_button"
@@ -48,9 +45,9 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:layout_weight="0"
-        android:text="Share"
-        android:textSize="20sp"
         android:background="@drawable/dialog_background_blue"
-        android:textColor="@color/yellow"/>
+        android:text="Share"
+        android:textColor="@color/yellow"
+        android:textSize="20sp" />
 
 </LinearLayout>

@@ -46,6 +46,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     private ArrayList<CollectionListData> myDataCollection;
     private int itemIndex;
 
+    private AlertDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +91,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         if (myDataCollection.get(itemIndex).getNumCollected() != 0 && myDataCollection.size() > 1) {
             writing = !writing;
             showPopup();
-            Toast.makeText(this, writing ? "Sharing!" : "Not Sharing!", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, writing ? "Sharing!" : "Not Sharing!", Toast.LENGTH_SHORT).show();
         }else{
             Toast.makeText(this, "You can't share what you don't have!", Toast.LENGTH_SHORT).show();
         }
@@ -132,6 +134,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 
                     collectionViewModel.decrementCollected(myDataCollection.get(itemIndex).getRealIndex());
                 });
+                dialog.dismiss();
                 writing = false;
             }
         }
@@ -142,7 +145,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
-        final AlertDialog dialog = alert.create();
+        dialog = alert.create();
         LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
         Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
