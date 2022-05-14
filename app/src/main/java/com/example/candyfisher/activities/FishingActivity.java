@@ -30,6 +30,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
 import com.example.candyfisher.models.FishingGameModel;
+import com.example.candyfisher.services.MusicSingleton;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 //import com.tomer.fadingtextview.FadingTextView;
 
@@ -61,6 +62,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private SoundPool soundPool;
     private boolean soundLoaded;
+
+//    private MusicSingleton myMediaPlayer;
 
 
     @Override
@@ -104,7 +107,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         soundLoaded = true;
         mImageView = findViewById(R.id.background_image);
         model = new FishingGameModel(orientationMode);
-
+//        myMediaPlayer = MusicSingleton.getInstance(this);
+//        myMediaPlayer.playMusic();
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
 
 
@@ -112,11 +116,17 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     }
 
     public void ShowPopUp(View v){
+        sensorManager.unregisterListener(this);
         TextView txtClose;
         myDialog.setContentView(R.layout.popup);
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        myDialog.setCancelable(false);
+        myDialog.setCanceledOnTouchOutside(false);
         txtClose = (TextView) myDialog.findViewById(R.id.close);
-        txtClose.setOnClickListener(v1 -> myDialog.dismiss());
+        txtClose.setOnClickListener(v1 -> {
+            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+            myDialog.dismiss();
+        });
         myDialog.show();
     }
 
@@ -210,6 +220,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onPause() {
         super.onPause();
+//        myMediaPlayer.pauseMusic();
         sensorManager.unregisterListener(this);
 
     }
@@ -224,6 +235,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
+//        myMediaPlayer.playMusic();
         if (orientationMode)
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
         else

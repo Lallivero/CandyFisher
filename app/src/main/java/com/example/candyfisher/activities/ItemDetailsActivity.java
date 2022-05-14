@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.example.candyfisher.R;
 
 import com.example.candyfisher.models.CollectionListData;
+import com.example.candyfisher.services.MusicSingleton;
 import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 
@@ -48,6 +49,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 
     private AlertDialog dialog;
 
+//    private MusicSingleton myMediaPlayer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +66,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         nameText = findViewById(R.id.details_candy_name);
         numCollected = findViewById(R.id.details_num_collected);
         button = findViewById(R.id.share_button);
-
+//        myMediaPlayer = MusicSingleton.getInstance(this);
+//        myMediaPlayer.playMusic();
 //        initialiseViews();
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -75,10 +79,10 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 
     private void initialiseViews(ArrayList<CollectionListData> collectionListData) {
         myDataCollection = Objects.requireNonNull(collectionViewModel.getNonZeroListData().getValue());
-        if(myDataCollection.size() < itemIndex + 1){
-            itemIndex = myDataCollection.size()-1;
+        if (myDataCollection.size() < itemIndex + 1) {
+            itemIndex = myDataCollection.size() - 1;
             onBackPressed();
-        }else {
+        } else {
             imageView.setImageResource(myDataCollection.get(itemIndex).getImageId());
             nameText.setText(myDataCollection.get(itemIndex).getDescription());
             numCollected.setText(String.valueOf(myDataCollection.get(itemIndex).getNumCollected()));
@@ -92,7 +96,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             writing = !writing;
             showPopup();
 //            Toast.makeText(this, writing ? "Sharing!" : "Not Sharing!", Toast.LENGTH_SHORT).show();
-        }else{
+        } else {
             Toast.makeText(this, "You can't share what you don't have!", Toast.LENGTH_SHORT).show();
         }
     }
@@ -100,6 +104,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     @Override
     protected void onPause() {
         super.onPause();
+//        myMediaPlayer.pauseMusic();
         if (nfcAdapter != null) {
             nfcAdapter.disableReaderMode(this);
         }
@@ -109,6 +114,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     @Override
     protected void onResume() {
         super.onResume();
+//        myMediaPlayer.playMusic();
         if (nfcAdapter != null) {
             Bundle options = new Bundle();
             options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 250);
@@ -140,7 +146,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         }
     }
 
-    private void showPopup(){
+    private void showPopup() {
 
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);

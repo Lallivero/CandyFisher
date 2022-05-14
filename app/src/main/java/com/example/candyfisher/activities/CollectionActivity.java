@@ -9,6 +9,7 @@ import com.example.candyfisher.R;
 
 import com.example.candyfisher.models.CollectionListAdapter;
 import com.example.candyfisher.models.CollectionListData;
+import com.example.candyfisher.services.MusicSingleton;
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
@@ -34,6 +35,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private NfcAdapter nfcAdapter;
     private static final String TAG = "CollectionActivity";
     private AlertDialog dialog;
+//    private MusicSingleton myMediaPlayer;
 //    private ProgressBar spinner;
 
     @Override
@@ -41,7 +43,8 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-
+//        myMediaPlayer = MusicSingleton.getInstance(this);
+//        myMediaPlayer.playMusic();
         refreshUI();
     }
 
@@ -85,6 +88,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onResume() {
         super.onResume();
+//        myMediaPlayer.playMusic();
         refreshUI();
         if (nfcAdapter != null) {
             Bundle options = new Bundle();
@@ -103,6 +107,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onPause() {
         super.onPause();
+//        myMediaPlayer.pauseMusic();
         reading = false;
         if (nfcAdapter != null) {
             nfcAdapter.disableReaderMode(this);
