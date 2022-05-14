@@ -24,10 +24,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        myMediaPlayer = MusicSingleton.getInstance(this);
 //        myMediaPlayer.playMusic();
-//        mediaPlayer = MediaPlayer.create(this, R.raw.waltz);
-//        mediaPlayer.setVolume(0.2f, 0.2f);
-//        mediaPlayer.setLooping(true);
-//        mediaPlayer.start(); // no need to call prepare(); create() does that for you
+        mediaPlayer = MediaPlayer.create(this, R.raw.waltz);
+        mediaPlayer.setVolume(0.2f, 0.2f);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start(); // no need to call prepare(); create() does that for you
         playing = true;
         imageButton = findViewById(R.id.mute_button);
     }
