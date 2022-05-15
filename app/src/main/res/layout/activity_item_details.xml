@@ -24,6 +24,8 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:text="CandyName"
+        android:textStyle="bold"
+        android:typeface="normal"
         android:textAlignment="center"
         android:textColor="@color/dark_blue"
         android:textSize="20sp" />
@@ -34,6 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:layout_weight="0"
+        android:textStyle="bold"
+        android:typeface="normal"
         android:text="NumCollected"
         android:textAlignment="center"
         android:textColor="@color/dark_blue"
@@ -46,7 +50,8 @@
         android:layout_margin="20dp"
         android:layout_weight="0"
         android:background="@drawable/dialog_background_blue"
-        android:text="Share"
+
+        android:text="@string/share_button_text"
         android:textColor="@color/yellow"
         android:textSize="20sp" />
 

@@ -15,7 +15,7 @@
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/volume_on_and_off_description"
-        android:onClick="pauseMusic"
+        android:onClick="muteOnClick"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_round_volume_off_24"
         app:layout_constraintStart_toStartOf="parent"

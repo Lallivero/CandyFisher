@@ -3,7 +3,6 @@ package com.example.candyfisher.activities;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -13,45 +12,44 @@ import com.example.candyfisher.services.MusicSingleton;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-        private MediaPlayer mediaPlayer;
-//    MusicSingleton myMediaPlayer;
+    MusicSingleton myMediaPlayer;
     private boolean playing;
     private ImageButton imageButton;
+    private boolean hasFocus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        myMediaPlayer = MusicSingleton.getInstance(this);
-//        myMediaPlayer.playMusic();
-        mediaPlayer = MediaPlayer.create(this, R.raw.waltz);
-        mediaPlayer.setVolume(0.2f, 0.2f);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start(); // no need to call prepare(); create() does that for you
+        myMediaPlayer = MusicSingleton.getInstance(this);
+        myMediaPlayer.playMusic();
         playing = true;
         imageButton = findViewById(R.id.mute_button);
+        imageButton.setImageResource(myMediaPlayer.isMuted() ? R.drawable.ic_round_volume_off_24 : R.drawable.ic_round_volume_up_24);
+        hasFocus = true;
     }
 
     public void toFishingActivity(View view) {
-
+        hasFocus = false;
         Intent intent = new Intent(this, FishingActivity.class);
         startActivity(intent);
     }
 
     public void toCollection(View view) {
+        hasFocus = false;
         Intent intent = new Intent(this, CollectionActivity.class);
         startActivity(intent);
     }
 
-    public void pauseMusic(View view) {
+    public void muteOnClick(View view) {
         if (playing) {
-            mediaPlayer.pause();
-//            myMediaPlayer.pauseMusic();
-            imageButton.setImageResource(R.drawable.ic_round_volume_up_24);
-        } else {
-            mediaPlayer.start();
-//            myMediaPlayer.playMusic();
+            myMediaPlayer.swapMuted();
+            myMediaPlayer.pauseMusic();
             imageButton.setImageResource(R.drawable.ic_round_volume_off_24);
+        } else {
+            myMediaPlayer.swapMuted();
+            myMediaPlayer.playMusic();
+            imageButton.setImageResource(R.drawable.ic_round_volume_up_24);
         }
         playing = !playing;
 
@@ -60,14 +58,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-//        myMediaPlayer.pauseMusic();
-        mediaPlayer.pause();
+        if (hasFocus)
+            myMediaPlayer.pauseMusic();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-//        myMediaPlayer.playMusic();
-        mediaPlayer.start();
+        hasFocus = true;
+        myMediaPlayer.playMusic();
+
     }
+
 }

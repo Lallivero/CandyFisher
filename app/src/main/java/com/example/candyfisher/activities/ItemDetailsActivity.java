@@ -49,7 +49,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 
     private AlertDialog dialog;
 
-//    private MusicSingleton myMediaPlayer;
+    private MusicSingleton myMediaPlayer;
+    private boolean hasFocus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +67,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         nameText = findViewById(R.id.details_candy_name);
         numCollected = findViewById(R.id.details_num_collected);
         button = findViewById(R.id.share_button);
-//        myMediaPlayer = MusicSingleton.getInstance(this);
+        myMediaPlayer = MusicSingleton.getInstance(this);
 //        myMediaPlayer.playMusic();
 //        initialiseViews();
 
@@ -104,7 +105,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     @Override
     protected void onPause() {
         super.onPause();
-//        myMediaPlayer.pauseMusic();
+        if (hasFocus)
+            myMediaPlayer.pauseMusic();
         if (nfcAdapter != null) {
             nfcAdapter.disableReaderMode(this);
         }
@@ -112,9 +114,16 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     }
 
     @Override
+    public void onBackPressed() {
+        hasFocus = false;
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-//        myMediaPlayer.playMusic();
+        hasFocus = true;
+        myMediaPlayer.playMusic();
         if (nfcAdapter != null) {
             Bundle options = new Bundle();
             options.putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 250);

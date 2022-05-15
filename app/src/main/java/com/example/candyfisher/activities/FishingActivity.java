@@ -63,7 +63,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private SoundPool soundPool;
     private boolean soundLoaded;
 
-//    private MusicSingleton myMediaPlayer;
+    private MusicSingleton myMediaPlayer;
+    private boolean hasFocus;
+    private boolean showingPopup = false;
 
 
     @Override
@@ -79,7 +81,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (orientationMode) {
             orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
-            if(orientationVector == null) {
+            if (orientationVector == null) {
 
             }
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
@@ -91,7 +93,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         }
 
         AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.
-                USAGE_ASSISTANCE_SONIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        USAGE_ASSISTANCE_SONIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build();
         soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
 
@@ -107,16 +109,16 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         soundLoaded = true;
         mImageView = findViewById(R.id.background_image);
         model = new FishingGameModel(orientationMode);
-//        myMediaPlayer = MusicSingleton.getInstance(this);
-//        myMediaPlayer.playMusic();
+        myMediaPlayer = MusicSingleton.getInstance(this);
+        hasFocus = true;
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
-
 
 
     }
 
-    public void ShowPopUp(View v){
-        sensorManager.unregisterListener(this);
+    public void ShowPopUp(View v) {
+//        sensorManager.unregisterListener(this);
+        showingPopup = true;
         TextView txtClose;
         myDialog.setContentView(R.layout.popup);
         myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -124,61 +126,51 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         myDialog.setCanceledOnTouchOutside(false);
         txtClose = (TextView) myDialog.findViewById(R.id.close);
         txtClose.setOnClickListener(v1 -> {
-            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+            showingPopup = false;
+//            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
             myDialog.dismiss();
         });
         myDialog.show();
     }
 
-    //Vibrate the phone, use AsyncVibration for multiple vibrations
-    private void vibrate() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).
-                    vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE));
-        } else {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
-        }
-    }
-
-
     //The "clock" of the game. Every sensor event is a tick.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-
-
-        //provides sensor data to model
-        model.setValues(sensorEvent.values.clone());
-        //If we detect a successful throw, start fishing.
-        if (model.checkSuccessfulThrow()) {
-            model.startFishing();
-            playSound(throwSound);
-            //Sound effect here when throwing
+        if (!showingPopup) {
+            //provides sensor data to model
+            model.setValues(sensorEvent.values.clone());
+            //If we detect a successful throw, start fishing.
+            if (model.checkSuccessfulThrow()) {
+                model.startFishing();
+                playSound(throwSound);
+                //Sound effect here when throwing
 //            Toast.makeText(this, "Nice Throw!", Toast.LENGTH_SHORT).show();
-            changeBackground(model.getCurrentlyFishing());
-            //If we catch something successfully register that (Might be some redundancy here)
-        } else if (model.checkSuccessfulCatch()) {
-            model.stopFishing();
-            onCatch();
-            //If we fail to catch something after the allotted grace period stop fishing
-        } else if (model.checkFailedCatch() && model.gracePeriod()) {
-            //Sound effect here when you fail to catch
-            model.stopFishing();
-            onFailedCatch();
-        }
+                changeBackground(model.getCurrentlyFishing());
+                //If we catch something successfully register that (Might be some redundancy here)
+            } else if (model.checkSuccessfulCatch()) {
+                model.stopFishing();
+                onCatch();
+                //If we fail to catch something after the allotted grace period stop fishing
+            } else if (model.checkFailedCatch() && model.gracePeriod()) {
+                //Sound effect here when you fail to catch
+                model.stopFishing();
+                onFailedCatch();
+            }
 
-        //Check if we are eligible for a bite
-        if (model.biteEligible()) {
-            //Sound effect here when you get a bite
-            model.bite();
-            playSound(timerSound);
-            //Needs to be asynchronous in order to vibrate three times without locking UI thread
-            AsyncVibration asyncVibration = new AsyncVibration();
-            asyncVibration.execute(asyncTaskParameters);
+            //Check if we are eligible for a bite
+            if (model.biteEligible()) {
+                //Sound effect here when you get a bite
+                model.bite();
+                playSound(timerSound);
+                //Needs to be asynchronous in order to vibrate three times without locking UI thread
+                AsyncVibration asyncVibration = new AsyncVibration();
+                asyncVibration.execute(asyncTaskParameters);
 //            vibrate();
-        } else if (model.pastBiteTime()) {
-            //Same  sound effect as for failed catch
-            model.stopFishing();
-            onFailedCatch();
+            } else if (model.pastBiteTime()) {
+                //Same  sound effect as for failed catch
+                model.stopFishing();
+                onFailedCatch();
+            }
 
         }
     }
@@ -220,7 +212,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onPause() {
         super.onPause();
-//        myMediaPlayer.pauseMusic();
+        if (hasFocus)
+            myMediaPlayer.pauseMusic();
         sensorManager.unregisterListener(this);
 
     }
@@ -235,7 +228,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     @Override
     protected void onResume() {
         super.onResume();
-//        myMediaPlayer.playMusic();
+        hasFocus = true;
+        myMediaPlayer.playMusic();
         if (orientationMode)
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
         else
@@ -244,7 +238,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     //Shows a pop up, takes an int referring to the index of the caught candy. -1 if unsuccessful catch
     private void showPopUp(int catchIndex) {
-        sensorManager.unregisterListener(this);
+        showingPopup = true;
+//        sensorManager.unregisterListener(this);
         ImageView imageView;
         TextView textView;
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout, null);
@@ -257,7 +252,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             textView.setText("Oof, that one got away!");
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setImageResource(R.drawable.cross);
-        //Success state dialog
+            //Success state dialog
         } else {
             imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
 
@@ -271,16 +266,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         Button okButton = alertCustomDialog.findViewById(R.id.cancel_button);
         Button collectionButton = alertCustomDialog.findViewById(R.id.collection_button);
         collectionButton.setOnClickListener(view -> {
+            hasFocus = false;
             Intent intent = new Intent(this, CollectionActivity.class);
             startActivity(intent);
             finish();
 
         });
         okButton.setOnClickListener(view -> {
-            if (orientationMode)
-                sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
-            else
-                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+            showingPopup = false;
+//            if (orientationMode)
+//                sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+//            else
+//                sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
             dialog.dismiss();
         });
         dialog.show();
@@ -333,13 +330,19 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+    @Override
+    public void onBackPressed() {
+        hasFocus = false;
+        super.onBackPressed();
+    }
+
     private void playSound(int sound) {
         AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         float currentVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
         float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         //Normalise since soundPool.play() requires a value between 0.0 and 1.0 for volume
         float normalisedVolume = currentVolume / maxVolume;
-        if(soundLoaded)
+        if (soundLoaded)
             soundPool.play(sound, normalisedVolume, normalisedVolume, 1, 0, 1f);
 
 

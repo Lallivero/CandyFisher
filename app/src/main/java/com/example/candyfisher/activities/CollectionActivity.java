@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -35,17 +34,19 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private NfcAdapter nfcAdapter;
     private static final String TAG = "CollectionActivity";
     private AlertDialog dialog;
-//    private MusicSingleton myMediaPlayer;
-//    private ProgressBar spinner;
+    private MusicSingleton myMediaPlayer;
+    //    private ProgressBar spinner;
+    private boolean hasFocus;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
-//        myMediaPlayer = MusicSingleton.getInstance(this);
-//        myMediaPlayer.playMusic();
+        myMediaPlayer = MusicSingleton.getInstance(this);
         refreshUI();
+        hasFocus = true;
     }
 
     private void refreshUI() {
@@ -66,6 +67,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     }
 
     public void toDetailsActivity(int index) {
+        hasFocus = false;
         Intent intent = new Intent(this, ItemDetailsActivity.class);
         intent.putExtra("Item_index", index);
         startActivity(intent);
@@ -74,8 +76,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     public void readClick(View view) {
         reading = !reading;
         showPopup();
-//        spinner.setVisibility((reading ? View.VISIBLE : View.INVISIBLE));
-//        Toast.makeText(this, reading ? "Reading" : "Stopped Reading", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -88,7 +88,8 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onResume() {
         super.onResume();
-//        myMediaPlayer.playMusic();
+        hasFocus = true;
+        myMediaPlayer.playMusic();
         refreshUI();
         if (nfcAdapter != null) {
             Bundle options = new Bundle();
@@ -107,12 +108,20 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     @Override
     protected void onPause() {
         super.onPause();
-//        myMediaPlayer.pauseMusic();
+        if (hasFocus)
+            myMediaPlayer.pauseMusic();
         reading = false;
         if (nfcAdapter != null) {
             nfcAdapter.disableReaderMode(this);
         }
         getViewModelStore().clear();
+    }
+
+    @Override
+    public void onBackPressed() {
+        hasFocus = false;
+        super.onBackPressed();
+
     }
 
     @Override
@@ -127,12 +136,10 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             }
             dialog.dismiss();
             reading = false;
-//            spinner.setVisibility(View.INVISIBLE);
         }
     }
 
-    private void showPopup(){
-
+    private void showPopup() {
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
@@ -141,7 +148,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         myButton.setOnClickListener(view -> {
             reading = false;
             dialog.dismiss();
-
         });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
