@@ -3,9 +3,12 @@ package com.example.candyfisher.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 
@@ -52,6 +55,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     private MusicSingleton myMediaPlayer;
     private boolean hasFocus;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,7 +63,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         Bundle extras = getIntent().getExtras();
         if (extras != null)
             itemIndex = extras.getInt("Item_index");
-
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         collectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         collectionViewModel.getCollectionListData().observe(this, this::initialiseViews);
         Log.i(TAG, "onCreate: " + collectionViewModel.getImageId(itemIndex));

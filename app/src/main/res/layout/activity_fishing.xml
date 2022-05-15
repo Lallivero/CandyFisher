@@ -31,7 +31,7 @@
         android:layout_marginBottom="10dp"
         android:background="@drawable/round_button_"
         android:fontFamily="@font/question"
-        android:onClick="ShowPopUp"
+        android:onClick="showTutorialOnClick"
         android:text="@string/question_mark"
         android:textAlignment="gravity"
         android:textColor="@color/yellow"

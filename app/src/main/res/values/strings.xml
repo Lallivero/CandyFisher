@@ -25,6 +25,8 @@
     <string name="candyfisherTitleText">CandyFisher</string>
     <string name="action_settings">Settings</string>
     <string name="share_button_text">Share</string>
+    <string name="tutorial_dialog_button">OK</string>
+    <string name="tutorial_text">Tutorial Text</string>
 
 
 </resources>

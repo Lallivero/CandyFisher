@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -61,6 +62,7 @@ public class CollectionListAdapter extends RecyclerView.Adapter<CollectionListAd
         public final TextView textView;
         public final TextView textView2;
         public final RelativeLayout relativeLayout;
+
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

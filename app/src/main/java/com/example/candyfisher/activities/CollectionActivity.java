@@ -14,10 +14,13 @@ import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -39,9 +42,12 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private boolean hasFocus;
 
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_collection);
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         myMediaPlayer = MusicSingleton.getInstance(this);

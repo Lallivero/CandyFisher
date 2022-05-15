@@ -2,7 +2,10 @@ package com.example.candyfisher.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,10 +20,13 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton imageButton;
     private boolean hasFocus;
 
+    @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         myMediaPlayer = MusicSingleton.getInstance(this);
         myMediaPlayer.playMusic();
         playing = true;
