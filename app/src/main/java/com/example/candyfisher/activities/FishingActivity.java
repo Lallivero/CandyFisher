@@ -20,15 +20,20 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
@@ -71,10 +76,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private boolean showingPopup = false;
 
     private int tutorialSteps;
-    private boolean tutorial = true;
+    private boolean tutorial = false;
 
     private Animation scaleAnimation;
+    private Animation scaleSmallAnimation;
+    private Animation fadeOutAnimation;
     private TextView scaleText;
+    private boolean notAnimated = true;
+    AnimationSet animationSet;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -88,9 +97,20 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         loadSound();
 
         scaleText = findViewById(R.id.scaleText);
+        scaleSmallAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_smaller);
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
+        fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
+
 
         tutorialSteps = 0;
+
+        animationSet = new AnimationSet(true);
+        animationSet.setDuration(1000);
+        animationSet.addAnimation(scaleAnimation);
+        animationSet.addAnimation(fadeOutAnimation);
+
+
+
 
     }
 
@@ -162,12 +182,31 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (!showingPopup) {
             //provides sensor data to model
             model.setValues(sensorEvent.values.clone());
+            if (((scaleText.getAnimation() == null) || scaleText.getAnimation().hasEnded()|| notAnimated) && !model.getCurrentlyFishing()) {
+                notAnimated = false;
+                scaleText.setVisibility(View.VISIBLE);
+                scaleText.setText(R.string.scale);
+                Log.i(TAG, "normalSensorChange: Animating");
+//                scaleText.animate().scaleX(1).scaleY(1).setDuration(1000).withEndAction(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        scaleText.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000);
+//                    }
+//                });
+                scaleText.startAnimation(scaleAnimation);
+//                if(scaleAnimation.hasEnded()){
+//                    scaleText.startAnimation(scaleSmallAnimation);
+//                }
 
+            } else {
+                scaleText.setVisibility(View.INVISIBLE);
+            }
             //text animation
-            scaleText.startAnimation(scaleAnimation);
+
 
             //If we detect a successful throw, start fishing.
             if (model.checkSuccessfulThrow()) {
+                scaleText.startAnimation(animationSet);
                 model.startFishing();
                 playSound(throwSound);
 
@@ -190,6 +229,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 AsyncVibration asyncVibration = new AsyncVibration();
                 asyncVibration.execute(asyncTaskParameters);
 //            vibrate();
+                scaleText.setText("Tilt Up!");
+                scaleText.setVisibility(View.VISIBLE);
+                scaleText.startAnimation(animationSet);
+//                scaleText.startAnimation(scaleAnimation);
+//                scaleText.startAnimation(fadeOutAnimation);
             } else if (model.pastBiteTime()) {
                 model.stopFishing();
                 onFailedCatch();
