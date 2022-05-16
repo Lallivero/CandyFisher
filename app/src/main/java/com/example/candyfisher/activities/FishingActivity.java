@@ -353,7 +353,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
-
     public void showTutorialOnClick(View v) {
         tutorial = true;
         tutorialSteps = 0;

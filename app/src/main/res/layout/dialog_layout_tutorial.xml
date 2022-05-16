@@ -20,6 +20,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/tutorial_text"
+            android:textStyle="bold"
             android:layout_marginHorizontal="30dp"
             android:textAlignment="center"
             android:textColor="@color/dark_blue" />

@@ -24,9 +24,11 @@ import android.media.AudioManager;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -138,16 +140,21 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             assert message != null;
             int itemIndex = Integer.parseInt(message);
             if (itemIndex < Candies.values().length) {
-                runOnUiThread(() -> collectionViewModel.incrementCollected(itemIndex));
+                runOnUiThread(() -> {
+                    collectionViewModel.incrementCollected(itemIndex);
+                    dialog.dismiss();
+                    showPopupResult(itemIndex);
+                });
                 Utils.writeNFC(tag, "");
-                dialog.dismiss();
-                showPopupResult(itemIndex);
+
+
             }
             reading = false;
         }
     }
 
     private void showPopup() {
+
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
@@ -169,7 +176,9 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         alert.setView(alertCustomDialog);
         dialog = alert.create();
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text_done);
-        textView.setText(collectionViewModel.getItemDescription(i));
+        textView.setText(String.format("%s %s!", getString(R.string.dialog_nfc_done), collectionViewModel.getItemDescription(i)));
+        ImageView imageView = alertCustomDialog.findViewById(R.id.receive_image);
+        imageView.setImageResource(collectionViewModel.getImageId(i));
         Button myButton = alertCustomDialog.findViewById(R.id.receive_done_button_ok);
         myButton.setOnClickListener(view -> {
             reading = false;

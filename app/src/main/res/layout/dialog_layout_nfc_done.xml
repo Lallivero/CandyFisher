@@ -16,8 +16,8 @@
 
         <ImageView
             android:id="@+id/receive_image"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:layout_marginTop="20dp"
             android:contentDescription="@string/image_of_the_catch"
             android:src="@drawable/candy7"
@@ -30,7 +30,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="@string/dialog_nfc_done"
-            android:textColor="@color/dark_blue" />
+            android:textAlignment="center"
+            android:textColor="@color/dark_blue"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="match_parent"

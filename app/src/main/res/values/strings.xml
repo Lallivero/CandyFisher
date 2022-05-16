@@ -27,7 +27,7 @@
     <string name="share_button_text">Share</string>
     <string name="tutorial_dialog_button">OK</string>
     <string name="tutorial_text">Tutorial Text</string>
-    <string name="dialog_nfc_done">You received a</string>
+    <string name="dialog_nfc_done">You received a </string>
     <string name="nfc_dialog_done_button">OK</string>
     <string name="scale">Tilt forward!</string>
 </resources>

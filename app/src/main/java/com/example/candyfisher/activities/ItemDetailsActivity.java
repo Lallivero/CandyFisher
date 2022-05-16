@@ -151,10 +151,11 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             if (sent) {
                 runOnUiThread(() -> {
                     Log.i(TAG, "onTagDiscovered: tag discovered");
-
+                    dialog.dismiss();
+                    showPopupDone();
                     collectionViewModel.decrementCollected(myDataCollection.get(itemIndex).getRealIndex());
                 });
-                dialog.dismiss();
+
                 writing = false;
             }
         }
@@ -169,6 +170,30 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
         Button myButton = alertCustomDialog.findViewById(R.id.recieve_done_button);
+
+        myButton.setOnClickListener(view -> {
+            writing = false;
+            dialog.dismiss();
+
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+    private void showPopupDone() {
+
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc_done, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        dialog = alert.create();
+        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
+        TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text_done);
+        ImageView imageView = alertCustomDialog.findViewById(R.id.receive_image);
+        Button myButton = alertCustomDialog.findViewById(R.id.receive_done_button_ok);
+        imageView.setImageResource(R.drawable.ic_round_check_24);
+        textView.setText(String.format("You successfully sent a\n%s", collectionViewModel.getItemDescription(itemIndex)));
 
         myButton.setOnClickListener(view -> {
             writing = false;
