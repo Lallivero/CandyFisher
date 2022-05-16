@@ -20,7 +20,9 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.SoundPool;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.os.Bundle;
@@ -41,8 +43,13 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private static final String TAG = "CollectionActivity";
     private AlertDialog dialog;
     private MusicSingleton myMediaPlayer;
-    //    private ProgressBar spinner;
+    // private ProgressBar spinner;
     private boolean hasFocus;
+
+    private SoundPool soundPool;
+    private boolean soundLoaded;
+
+    private int recieveSound, shareSound;
 
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -56,6 +63,8 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         myMediaPlayer = MusicSingleton.getInstance(this);
         refreshUI();
         hasFocus = true;
+
+        loadSound();
     }
 
     private void refreshUI() {
@@ -64,8 +73,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     }
 
     private void initialiseView(ArrayList<CollectionListData> collectionListData) {
-
-
         RecyclerView recyclerView = findViewById(R.id.collection_view);
         ArrayList<CollectionListData> nonZeroValueList = collectionViewModel.getNonZeroListData().getValue();
         CollectionListAdapter collectionListAdapter = new CollectionListAdapter(nonZeroValueList,
@@ -73,6 +80,19 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(collectionListAdapter);
+    }
+
+    private void loadSound() {
+        //Soundpool
+        AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.
+                        USAGE_ASSISTANCE_SONIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
+        soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> soundLoaded = true);
+        recieveSound = soundPool.load(this, R.raw.success, 1);
+        shareSound = soundPool.load(this, R.raw.send, 1);
+
+        soundLoaded = true;
     }
 
     public void toDetailsActivity(int index) {
@@ -144,9 +164,9 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
                     collectionViewModel.incrementCollected(itemIndex);
                     dialog.dismiss();
                     showPopupResult(itemIndex);
+                    playSound(recieveSound);
                 });
                 Utils.writeNFC(tag, "");
-
 
             }
             reading = false;
@@ -190,5 +210,14 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         dialog.show();
     }
 
+    private void playSound(int sound) {
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        float currentVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        //Normalise since soundPool.play() requires a value between 0.0 and 1.0 for volume
+        float normalisedVolume = currentVolume / maxVolume;
+        if (soundLoaded)
+            soundPool.play(sound, normalisedVolume, normalisedVolume, 1, 0, 1f);
 
+    }
 }

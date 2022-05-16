@@ -46,7 +46,6 @@ import com.example.candyfisher.viewModels.CollectionViewModel;
 public class FishingActivity extends AppCompatActivity implements SensorEventListener {
     private static final String TAG = "FishingActivity";
 
-
     private FishingGameModel model;
 
     Dialog myDialog;
@@ -54,7 +53,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor orientationVector;
-
 
     private ImageView mImageView;
     private CollectionViewModel myCollectionViewModel;
@@ -424,7 +422,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         float normalisedVolume = currentVolume / maxVolume;
         if (soundLoaded)
             soundPool.play(sound, normalisedVolume, normalisedVolume, 1, 0, 1f);
-
 
     }
 
