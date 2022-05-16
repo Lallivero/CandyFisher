@@ -31,6 +31,7 @@ import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.dynamicanimation.animation.SpringAnimation;
@@ -77,12 +78,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private boolean tutorial = false;
 
     private Animation scaleAnimation;
-    private Animation scaleSmallAnimation;
-    private Animation fadeOutAnimation;
     private TextView scaleText;
-    private boolean notAnimated = true;
     AnimationSet animationSet;
-    private boolean showThrowAnimation = true;
+    Animation fadeOutAnimation;
+    private boolean notAnimated = true;
+    private boolean help = true;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -94,20 +94,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         setup();
         loadSensors();
         loadSound();
+        setupAnimations();
 
+    }
+
+    private void setupAnimations(){
         scaleText = findViewById(R.id.scaleText);
-        scaleSmallAnimation = AnimationUtils.loadAnimation(this, R.anim.scale_smaller);
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
         fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
-
-
-        tutorialSteps = 0;
-
         animationSet = new AnimationSet(true);
         animationSet.setDuration(1000);
         animationSet.addAnimation(scaleAnimation);
         animationSet.addAnimation(fadeOutAnimation);
-
 
     }
 
@@ -126,6 +124,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
         //Misc
         hasFocus = true;
+        tutorialSteps = 0;
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
     }
 
@@ -134,7 +133,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (orientationMode) {
             orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
             if (orientationVector == null) {
-
+                Toast.makeText(this, "Orientation Vector not found", Toast.LENGTH_SHORT).show();
             }
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
 
@@ -180,34 +179,32 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (!showingPopup) {
             //provides sensor data to model
             model.setValues(sensorEvent.values.clone());
-            if (showThrowAnimation && !model.getCurrentlyFishing()) {
-                showThrowAnimation = false;
+            if ((scaleText.getAnimation() == null || notAnimated || scaleText.getAnimation().hasEnded()) && !model.getCurrentlyFishing() && help) {
                 notAnimated = false;
+                Log.i(TAG, "normalSensorChange: animating");
                 scaleText.setVisibility(View.VISIBLE);
                 scaleText.setText(R.string.scale);
                 scaleText.startAnimation(scaleAnimation);
-            } else {
+            } else if(model.getCurrentlyFishing() && !model.getBite()){
                 scaleText.setVisibility(View.INVISIBLE);
             }
             //text animation
             //If we detect a successful throw, start fishing.
             if (model.checkSuccessfulThrow()) {
-                showThrowAnimation = false;
                 scaleText.startAnimation(animationSet);
                 model.startFishing();
                 playSound(throwSound);
-
                 changeBackground(model.getCurrentlyFishing());
                 //If we catch something successfully register that (Might be some redundancy here)
             } else if (model.checkSuccessfulCatch()) {
                 model.stopFishing();
                 onCatch();
-                showThrowAnimation = true;
+
                 //If we fail to catch something after the allotted grace period stop fishing
             } else if (model.checkFailedCatch() && model.gracePeriod()) {
                 model.stopFishing();
                 onFailedCatch();
-                showThrowAnimation = true;
+
             }
 
             //Check if we are eligible for a bite
@@ -218,15 +215,17 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 AsyncVibration asyncVibration = new AsyncVibration();
                 asyncVibration.execute(asyncTaskParameters);
 //            vibrate();
-                scaleText.setText("Tilt Up!");
-                scaleText.setVisibility(View.VISIBLE);
-                scaleText.startAnimation(animationSet);
+                if(help) {
+                    scaleText.setText("Tilt Up!");
+                    scaleText.setVisibility(View.VISIBLE);
+                    scaleText.startAnimation(animationSet);
+                }
 //                scaleText.startAnimation(scaleAnimation);
 //                scaleText.startAnimation(fadeOutAnimation);
             } else if (model.pastBiteTime()) {
                 model.stopFishing();
                 onFailedCatch();
-                showThrowAnimation = true;
+
             }
 
         }
@@ -237,7 +236,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             model.setValues(sensorEvent.values.clone());
             switch (tutorialSteps) {
                 case 0:
-                    showStepByStep("Tilt your phone to throw!");
+                    showStepByStep("Tilt your phone forward to throw!");
                     break;
                 case 1:
                     if (model.checkSuccessfulThrow()) {
@@ -271,7 +270,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                     }
                     break;
             }
-
         }
     }
 
@@ -288,8 +286,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 model.bite();
                 playSound(timerSound);
                 break;
-
-
         }
     }
 
@@ -384,26 +380,11 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             dialog.dismiss();
         });
         dialog.show();
-
     }
 
     public void showTutorialOnClick(View v) {
         tutorial = true;
         tutorialSteps = 0;
-//        sensorManager.unregisterListener(this);
-//        showingPopup = true;
-//        TextView txtClose;
-//        myDialog.setContentView(R.layout.popup);
-//        myDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//        myDialog.setCancelable(false);
-//        myDialog.setCanceledOnTouchOutside(false);
-//        txtClose = (TextView) myDialog.findViewById(R.id.close);
-//        txtClose.setOnClickListener(v1 -> {
-//            showingPopup = false;
-////            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
-//            myDialog.dismiss();
-//        });
-//        myDialog.show();
     }
 
     private void playSound(int sound) {
@@ -437,7 +418,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             this.vibrationDuration = vibrationDuration;
             this.vibrator = vibrator;
         }
-
     }
 
     private static class AsyncVibration extends AsyncTask<AsyncTaskParameters, Void, Void> {
@@ -459,8 +439,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             }
             return null;
         }
-
-
     }
 
     //Pauses the sensor when activity is not in focus
@@ -469,6 +447,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         super.onPause();
         if (hasFocus)
             myMediaPlayer.pauseMusic();
+        showingPopup = true;
         sensorManager.unregisterListener(this);
 
     }
@@ -485,6 +464,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         super.onResume();
         hasFocus = true;
         myMediaPlayer.playMusic();
+        showingPopup = false;
         if (orientationMode)
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
         else

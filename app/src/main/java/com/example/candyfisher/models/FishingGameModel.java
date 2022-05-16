@@ -187,4 +187,8 @@ public class FishingGameModel {
         Random random = new Random();
         return random.nextInt(3000) + 2000;
     }
+
+    public boolean getBite() {
+        return bite;
+    }
 }
