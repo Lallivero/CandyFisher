@@ -20,27 +20,26 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.candyfisher.R;
 import com.example.candyfisher.models.FishingGameModel;
 import com.example.candyfisher.services.MusicSingleton;
 import com.example.candyfisher.viewModels.CollectionViewModel;
+
+import java.util.ArrayList;
+import java.util.Random;
 //import com.tomer.fadingtextview.FadingTextView;
 
 
@@ -82,7 +81,17 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     AnimationSet animationSet;
     Animation fadeOutAnimation;
     private boolean notAnimated = true;
-    private boolean help = true;
+    private boolean help = false;
+    private boolean failPause = false;
+    private AlertDialog loadingDialog;
+    private boolean isLoading = true;
+    private long createTime;
+
+    Random random = new Random();
+
+    private ArrayList<String> encouragements = new ArrayList<>();
+    private ArrayList<String> tooSlow = new ArrayList<>();
+    private ArrayList<String> tooFast = new ArrayList<>();
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -95,22 +104,35 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         loadSensors();
         loadSound();
         setupAnimations();
-
+        createStringLists();
+        showLoadingPopUp();
     }
 
-    private void setupAnimations(){
+    private void createStringLists() {
+        encouragements.add("Nice Throw!");
+        encouragements.add("Well Done!");
+        encouragements.add("Good One!");
+
+        tooSlow.add("It got Away!");
+        tooSlow.add("Need to be Faster!");
+        tooSlow.add("Too Slow!");
+
+        tooFast.add("Too Soon!");
+        tooFast.add("Slow Down!");
+        tooFast.add("Hold Steady!");
+    }
+
+    private void setupAnimations() {
         scaleText = findViewById(R.id.scaleText);
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
         fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
         animationSet = new AnimationSet(true);
-        animationSet.setDuration(1000);
+        animationSet.setDuration(1500);
         animationSet.addAnimation(scaleAnimation);
         animationSet.addAnimation(fadeOutAnimation);
-
     }
 
     private void setup() {
-
         //ViewModel
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData();
@@ -125,6 +147,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         //Misc
         hasFocus = true;
         tutorialSteps = 0;
+        createTime = System.currentTimeMillis();
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
     }
 
@@ -136,7 +159,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 Toast.makeText(this, "Orientation Vector not found", Toast.LENGTH_SHORT).show();
             }
             sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
-
 
         } else {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -172,26 +194,35 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         } else {
             normalSensorChange(sensorEvent);
         }
-
     }
 
     private void normalSensorChange(SensorEvent sensorEvent) {
+
+        if(System.currentTimeMillis() - createTime > 2500){
+            loadingDialog.dismiss();
+        }
         if (!showingPopup) {
             //provides sensor data to model
             model.setValues(sensorEvent.values.clone());
             if ((scaleText.getAnimation() == null || notAnimated || scaleText.getAnimation().hasEnded()) && !model.getCurrentlyFishing() && help) {
                 notAnimated = false;
-                Log.i(TAG, "normalSensorChange: animating");
                 scaleText.setVisibility(View.VISIBLE);
                 scaleText.setText(R.string.scale);
                 scaleText.startAnimation(scaleAnimation);
-            } else if(model.getCurrentlyFishing() && !model.getBite()){
-                scaleText.setVisibility(View.INVISIBLE);
+            } else if (model.getCurrentlyFishing() && !model.getBite() && help && scaleAnimation.hasEnded()) {
+                scaleText.setVisibility(View.VISIBLE);
+                scaleText.setText("Hold Steady Now!");
+                scaleText.startAnimation(scaleAnimation);
             }
             //text animation
             //If we detect a successful throw, start fishing.
             if (model.checkSuccessfulThrow()) {
-                scaleText.startAnimation(animationSet);
+                if (!help) {
+                    scaleText.setText(encouragements.get(random.nextInt(encouragements.size())));
+                    scaleText.startAnimation(animationSet);
+                } else
+                    scaleText.clearAnimation();
+//                scaleText.startAnimation(animationSet);
                 model.startFishing();
                 playSound(throwSound);
                 changeBackground(model.getCurrentlyFishing());
@@ -203,7 +234,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 //If we fail to catch something after the allotted grace period stop fishing
             } else if (model.checkFailedCatch() && model.gracePeriod()) {
                 model.stopFishing();
-                onFailedCatch();
+                onFailedCatch(0, false);
 
             }
 
@@ -214,24 +245,20 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 //Needs to be asynchronous in order to vibrate three times without locking UI thread
                 AsyncVibration asyncVibration = new AsyncVibration();
                 asyncVibration.execute(asyncTaskParameters);
-//            vibrate();
-                if(help) {
-                    scaleText.setText("Tilt Up!");
-                    scaleText.setVisibility(View.VISIBLE);
-                    scaleText.startAnimation(animationSet);
-                }
-//                scaleText.startAnimation(scaleAnimation);
-//                scaleText.startAnimation(fadeOutAnimation);
+
+                scaleText.setText(help ? "Tilt Up!" : "Oh, a Bite!");
+                scaleText.setVisibility(View.VISIBLE);
+                scaleText.startAnimation(animationSet);
+
             } else if (model.pastBiteTime()) {
                 model.stopFishing();
-                onFailedCatch();
-
+                onFailedCatch(1, true);
             }
-
         }
     }
 
     private void tutorialSensorChange(SensorEvent sensorEvent) {
+
         if (!showingPopup) {
             model.setValues(sensorEvent.values.clone());
             switch (tutorialSteps) {
@@ -292,13 +319,26 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     /*
     Actions to be carried out when a catch fails.
     Change background, show a popup with value -1 for failure.
+    The arguments were added very late as a means of distinction between several events. No time to refactor.
      */
-    private void onFailedCatch() {
+    private void onFailedCatch(int i, boolean slow) {
         changeBackground(model.getCurrentlyFishing());
+        scaleText.clearAnimation();
+
         playSound(failSound);
-        int FAILED_CATCH_VALUE = -1;
-        showPopUp(FAILED_CATCH_VALUE);
-//        Toast.makeText(this, "That one got away :(", Toast.LENGTH_SHORT).show();
+
+        if (failPause && slow) {
+            int FAILED_CATCH_VALUE = -1;
+            showPopUp(FAILED_CATCH_VALUE);
+            scaleText.setVisibility(View.INVISIBLE);
+        }else if(failPause){
+            int FAILED_CATCH_VALUE = -2;
+            showPopUp(FAILED_CATCH_VALUE);
+            scaleText.setVisibility(View.INVISIBLE);
+        } else {
+            scaleText.setText(i == 0 ? tooFast.get(random.nextInt(tooFast.size())) : tooSlow.get(random.nextInt(tooSlow.size())));
+            scaleText.startAnimation(animationSet);
+        }
     }
 
     /*
@@ -309,6 +349,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private void onCatch() {
         changeBackground(model.getCurrentlyFishing());
         playSound(successSound);
+        scaleText.clearAnimation();
+        scaleText.setVisibility(View.INVISIBLE);
         int catchIndex = model.getCatch().ordinal();
         myCollectionViewModel.incrementCollected(catchIndex);
         showPopUp(catchIndex);
@@ -326,14 +368,18 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
         imageView = alertCustomDialog.findViewById(R.id.progressBar);
-        textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
+        textView = alertCustomDialog.findViewById(R.id.dialog_loading_text);
         //This is the failure state dialog
         if (catchIndex == -1) {
-            textView.setText("Oof, that one got away!");
+            textView.setText("That one got away!");
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setImageResource(R.drawable.cross);
             //Success state dialog
-        } else {
+        } else if (catchIndex == -2) {
+            textView.setText("Hold it steady!");
+            imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+            imageView.setImageResource(R.drawable.cross);
+        }else{
             imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
 
             textView.setText(String.format("%s %s!", getString(R.string.catchDialogText), myCollectionViewModel.getItemDescription(catchIndex)));
@@ -361,6 +407,43 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
+
+    private void showOptionsPopUp() {
+        showingPopup = true;
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_options, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        final AlertDialog dialog = alert.create();
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        Button pauseOnFail = alertCustomDialog.findViewById(R.id.check_fail_pause);
+        Button helpText = alertCustomDialog.findViewById(R.id.check_help_text);
+        Button tutorial_button = alertCustomDialog.findViewById(R.id.check_tutorial);
+        if (failPause)
+            pauseOnFail.performClick();
+        if (help)
+            helpText.performClick();
+        if (tutorial)
+            tutorial_button.performClick();
+
+        pauseOnFail.setOnClickListener(view -> {
+            failPause = !failPause;
+        });
+        helpText.setOnClickListener(view -> {
+            help = !help;
+            scaleText.clearAnimation();
+            scaleText.setVisibility(View.INVISIBLE);
+        });
+        tutorial_button.setOnClickListener(view -> {
+            tutorialSteps = 0;
+            tutorial = !tutorial;
+        });
+        dialog.setOnDismissListener(dialogInterface -> {
+            showingPopup = false;
+        });
+        dialog.show();
+    }
+
     private void showStepByStep(String message) {
         showingPopup = true;
         TextView textView;
@@ -382,9 +465,23 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         dialog.show();
     }
 
+    private void showLoadingPopUp() {
+        showingPopup = true;
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_loading, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        loadingDialog = alert.create();
+        loadingDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        loadingDialog.setCancelable(false);
+        loadingDialog.setCanceledOnTouchOutside(false);
+        loadingDialog.setOnDismissListener(dialogInterface -> {
+            showingPopup = false;
+        });
+        loadingDialog.show();
+    }
+
     public void showTutorialOnClick(View v) {
-        tutorial = true;
-        tutorialSteps = 0;
+        showOptionsPopUp();
     }
 
     private void playSound(int sound) {
@@ -432,6 +529,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 if (currentTime - previousTime > parameters[0].vibrationDelay) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         parameters[0].vibrator.vibrate(VibrationEffect.createOneShot(parameters[0].vibrationDuration, VibrationEffect.DEFAULT_AMPLITUDE));
+                    }else {
+                        parameters[0].vibrator.vibrate(parameters[0].vibrationDuration);
                     }
                     previousTime = currentTime;
                     count++;

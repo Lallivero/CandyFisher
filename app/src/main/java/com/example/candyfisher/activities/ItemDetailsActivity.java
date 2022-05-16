@@ -189,8 +189,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
         dialog = alert.create();
-        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
-        TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
+        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_loading_layout);
+        TextView textView = alertCustomDialog.findViewById(R.id.dialog_loading_text);
         Button myButton = alertCustomDialog.findViewById(R.id.recieve_done_button);
 
         myButton.setOnClickListener(view -> {
@@ -210,7 +210,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
         dialog = alert.create();
-        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
+        LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_loading_layout);
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text_done);
         ImageView imageView = alertCustomDialog.findViewById(R.id.receive_image);
         Button myButton = alertCustomDialog.findViewById(R.id.receive_done_button_ok);
@@ -220,7 +220,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         myButton.setOnClickListener(view -> {
             writing = false;
             dialog.dismiss();
-
         });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
