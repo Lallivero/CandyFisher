@@ -82,6 +82,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private TextView scaleText;
     private boolean notAnimated = true;
     AnimationSet animationSet;
+    private boolean showThrowAnimation = true;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -106,8 +107,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         animationSet.setDuration(1000);
         animationSet.addAnimation(scaleAnimation);
         animationSet.addAnimation(fadeOutAnimation);
-
-
 
 
     }
@@ -168,6 +167,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     //The "clock" of the game. Every sensor event is a tick.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+
         if (tutorial) {
             tutorialSensorChange(sensorEvent);
         } else {
@@ -180,30 +180,19 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (!showingPopup) {
             //provides sensor data to model
             model.setValues(sensorEvent.values.clone());
-            if (((scaleText.getAnimation() == null) || scaleText.getAnimation().hasEnded()|| notAnimated) && !model.getCurrentlyFishing()) {
+            if (showThrowAnimation && !model.getCurrentlyFishing()) {
+                showThrowAnimation = false;
                 notAnimated = false;
                 scaleText.setVisibility(View.VISIBLE);
                 scaleText.setText(R.string.scale);
-                Log.i(TAG, "normalSensorChange: Animating");
-//                scaleText.animate().scaleX(1).scaleY(1).setDuration(1000).withEndAction(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        scaleText.animate().scaleX(1.5f).scaleY(1.5f).setDuration(1000);
-//                    }
-//                });
                 scaleText.startAnimation(scaleAnimation);
-//                if(scaleAnimation.hasEnded()){
-//                    scaleText.startAnimation(scaleSmallAnimation);
-//                }
-
             } else {
                 scaleText.setVisibility(View.INVISIBLE);
             }
             //text animation
-
-
             //If we detect a successful throw, start fishing.
             if (model.checkSuccessfulThrow()) {
+                showThrowAnimation = false;
                 scaleText.startAnimation(animationSet);
                 model.startFishing();
                 playSound(throwSound);
@@ -213,10 +202,12 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             } else if (model.checkSuccessfulCatch()) {
                 model.stopFishing();
                 onCatch();
+                showThrowAnimation = true;
                 //If we fail to catch something after the allotted grace period stop fishing
             } else if (model.checkFailedCatch() && model.gracePeriod()) {
                 model.stopFishing();
                 onFailedCatch();
+                showThrowAnimation = true;
             }
 
             //Check if we are eligible for a bite
@@ -235,6 +226,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             } else if (model.pastBiteTime()) {
                 model.stopFishing();
                 onFailedCatch();
+                showThrowAnimation = true;
             }
 
         }

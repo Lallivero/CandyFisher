@@ -215,7 +215,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         ImageView imageView = alertCustomDialog.findViewById(R.id.receive_image);
         Button myButton = alertCustomDialog.findViewById(R.id.receive_done_button_ok);
         imageView.setImageResource(R.drawable.ic_round_check_24);
-        textView.setText(String.format("You successfully sent a\n%s", collectionViewModel.getItemDescription(itemIndex)));
+        textView.setText(String.format("You successfully sent a\n%s", collectionViewModel.getItemDescription(myDataCollection.get(itemIndex).getRealIndex())));
 
         myButton.setOnClickListener(view -> {
             writing = false;

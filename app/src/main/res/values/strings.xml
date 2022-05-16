@@ -1,11 +1,11 @@
 <resources>
 
-<!--  Descriptions  -->
+    <!--  Descriptions  -->
     <string name="happy_candy_description">Happy candy</string>
     <string name="volume_on_and_off_description">Volume on and off</string>
     <string name="image_of_the_catch">Image of the catch</string>
 
-<!--  Buttons  -->
+    <!--  Buttons  -->
     <string name="go_fish_text">Go Fish!</string>
     <string name="question_mark">\?</string>
     <string name="text_collection">Collection</string>
@@ -16,11 +16,11 @@
     <string name="receive_text">Receive</string>
 
 
-<!--  Dialog text  -->
+    <!--  Dialog text  -->
     <string name="catchDialogText">Yay! You caught a</string>
     <string name="searching_for_tag_string">Touch the back of the phone with a Tag</string>
 
-<!-- Title and misc.  -->
+    <!-- Title and misc.  -->
     <string name="app_name">CandyFisher</string>
     <string name="candyfisherTitleText">CandyFisher</string>
     <string name="action_settings">Settings</string>

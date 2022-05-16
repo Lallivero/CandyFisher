@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activities.SettingsActivity">
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chip_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="80dp"
+        android:theme="@style/Theme.MaterialComponents.Light"
+        app:chipSpacingVertical="10dp">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mute Music"
+
+            android:theme="@style/Theme.MaterialComponents.Light"
+
+            app:chipIcon="@drawable/ic_round_volume_off_24" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.MaterialComponents.Light"
+            android:text="Mute Sound Effects"/>
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.MaterialComponents.Light"
+            android:text="Enable Helper Text"/>
+    </com.google.android.material.chip.ChipGroup>
+</RelativeLayout>

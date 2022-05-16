@@ -47,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+//    public void toSettings(View view){
+//        hasFocus = false;
+//        Intent intent = new Intent(this, SettingsActivity.class);
+//        startActivity(intent);
+//    }
+
     public void muteOnClick(View view) {
         if (playing) {
             myMediaPlayer.swapMuted();
