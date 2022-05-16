@@ -22,6 +22,8 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -71,6 +73,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private int tutorialSteps;
     private boolean tutorial = true;
 
+    private Animation scaleAnimation;
+    private TextView scaleText;
 
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
@@ -83,6 +87,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         loadSensors();
         loadSound();
 
+        scaleText = findViewById(R.id.scaleText);
+        scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
+
         tutorialSteps = 0;
 
     }
@@ -92,6 +99,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         //ViewModel
         myCollectionViewModel = new ViewModelProvider(this).get(CollectionViewModel.class);
         myCollectionViewModel.getCollectionListData();
+
         //Game logic model
         model = new FishingGameModel(orientationMode);
 
@@ -154,6 +162,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         if (!showingPopup) {
             //provides sensor data to model
             model.setValues(sensorEvent.values.clone());
+
+            //text animation
+            scaleText.startAnimation(scaleAnimation);
+
             //If we detect a successful throw, start fishing.
             if (model.checkSuccessfulThrow()) {
                 model.startFishing();
