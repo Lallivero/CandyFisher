@@ -168,7 +168,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         dialog = alert.create();
         LinearLayout layout = alertCustomDialog.findViewById(R.id.dialog_nfc_layout);
         TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text);
-        Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
+        Button myButton = alertCustomDialog.findViewById(R.id.recieve_done_button);
 
         myButton.setOnClickListener(view -> {
             writing = false;

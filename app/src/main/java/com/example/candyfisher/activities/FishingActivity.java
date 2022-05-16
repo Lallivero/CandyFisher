@@ -20,14 +20,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
-import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -304,7 +301,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
-        Button okButton = alertCustomDialog.findViewById(R.id.cancel_button);
+        Button okButton = alertCustomDialog.findViewById(R.id.recieve_done_button);
         Button collectionButton = alertCustomDialog.findViewById(R.id.collection_button);
         collectionButton.setOnClickListener(view -> {
             hasFocus = false;

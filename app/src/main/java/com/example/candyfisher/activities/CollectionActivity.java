@@ -27,6 +27,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -139,8 +140,9 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             if (itemIndex < Candies.values().length) {
                 runOnUiThread(() -> collectionViewModel.incrementCollected(itemIndex));
                 Utils.writeNFC(tag, "");
+                dialog.dismiss();
+                showPopupResult(itemIndex);
             }
-            dialog.dismiss();
             reading = false;
         }
     }
@@ -150,7 +152,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
         dialog = alert.create();
-        Button myButton = alertCustomDialog.findViewById(R.id.cancel_button);
+        Button myButton = alertCustomDialog.findViewById(R.id.recieve_done_button);
         myButton.setOnClickListener(view -> {
             reading = false;
             dialog.dismiss();
@@ -160,4 +162,24 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         dialog.setCancelable(false);
         dialog.show();
     }
+
+    private void showPopupResult(int i) {
+        View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_nfc_done, null);
+        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+        alert.setView(alertCustomDialog);
+        dialog = alert.create();
+        TextView textView = alertCustomDialog.findViewById(R.id.dialog_nfc_text_done);
+        textView.setText(collectionViewModel.getItemDescription(i));
+        Button myButton = alertCustomDialog.findViewById(R.id.receive_done_button_ok);
+        myButton.setOnClickListener(view -> {
+            reading = false;
+            dialog.dismiss();
+        });
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
+        dialog.show();
+    }
+
+
 }
