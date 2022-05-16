@@ -8,7 +8,9 @@ import android.app.AlertDialog;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
+import android.media.SoundPool;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 
@@ -55,6 +57,11 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
     private MusicSingleton myMediaPlayer;
     private boolean hasFocus;
 
+    private SoundPool soundPool;
+    private boolean soundLoaded;
+
+    private int shareSound;
+
     @SuppressLint("SourceLockedOrientationActivity")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +83,8 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
 //        myMediaPlayer.playMusic();
 //        initialiseViews();
 
+        loadSound();
+
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
             Toast.makeText(this, "This device does not support NFC", Toast.LENGTH_SHORT).show();
@@ -95,6 +104,18 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             button.setOnClickListener(view -> setWriteMode());
         }
 
+    }
+
+    private void loadSound() {
+        //Soundpool
+        AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.
+                        USAGE_ASSISTANCE_SONIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
+        soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
+        soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> soundLoaded = true);
+        shareSound = soundPool.load(this, R.raw.send, 1);
+
+        soundLoaded = true;
     }
 
     public void setWriteMode() {
@@ -154,6 +175,7 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
                     dialog.dismiss();
                     showPopupDone();
                     collectionViewModel.decrementCollected(myDataCollection.get(itemIndex).getRealIndex());
+                    playSound(shareSound);
                 });
 
                 writing = false;
@@ -204,5 +226,16 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
         dialog.setCanceledOnTouchOutside(false);
         dialog.setCancelable(false);
         dialog.show();
+    }
+
+    private void playSound(int sound) {
+        AudioManager audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        float currentVolume = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        float maxVolume = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        //Normalise since soundPool.play() requires a value between 0.0 and 1.0 for volume
+        float normalisedVolume = currentVolume / maxVolume;
+        if (soundLoaded)
+            soundPool.play(sound, normalisedVolume, normalisedVolume, 1, 0, 1f);
+
     }
 }

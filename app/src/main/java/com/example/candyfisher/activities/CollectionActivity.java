@@ -49,7 +49,7 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
     private SoundPool soundPool;
     private boolean soundLoaded;
 
-    private int recieveSound, shareSound;
+    private int recieveSound;
 
 
     @SuppressLint("SourceLockedOrientationActivity")
@@ -90,7 +90,6 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
         soundPool = new SoundPool.Builder().setMaxStreams(1).setAudioAttributes(audioAttributes).build();
         soundPool.setOnLoadCompleteListener((soundPool, sampleId, status) -> soundLoaded = true);
         recieveSound = soundPool.load(this, R.raw.success, 1);
-        shareSound = soundPool.load(this, R.raw.send, 1);
 
         soundLoaded = true;
     }
