@@ -67,6 +67,7 @@ public class FishingGameModel {
         fifo.clear();
         tilt = null;
         previousTilt = null;
+
     }
 
     public void setValues(float[] values) {
@@ -112,7 +113,7 @@ public class FishingGameModel {
 //        key2.push(Tilt.UPSIDEDOWN);
 //        key2.push(Tilt.FACEUP);
 //        return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
-        return fifo.equals(key1) && !currentlyFishing;
+        return (fifo.equals(key1) && !currentlyFishing);
     }
 
     //If the tilt-fifo contains the allowed catch pattern and we have a bite, return true
@@ -143,10 +144,9 @@ public class FishingGameModel {
     }
 
     private void setTiltRotation() {
-
         float tiltSensitivity = 0.5f;
         previousTilt = tilt;
-        if (Math.PI / 2f - orientationValues[1] * -1 < tiltSensitivity + 0.25f) {
+        if (Math.PI / 2f - orientationValues[1] * -1 < tiltSensitivity + 0.2f) {
             tilt = Tilt.UPRIGHT;
         } else if ((Math.PI / 2f - orientationValues[1] < tiltSensitivity + 0.25f)) {
             tilt = Tilt.UPSIDEDOWN;
@@ -159,11 +159,13 @@ public class FishingGameModel {
 //        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[0]));
 //        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[1]));
 //        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[2]));
-
         if (tilt != previousTilt) {
             fifo.push(tilt);
+
+//            Log.i(TAG, "setTiltRotation: " + fifo.toString());
+//            Log.i(TAG, "setTiltRotation: " + orientationValues[1]);
         }
-//        Log.i(TAG, "setTiltRotation: " + fifo.toString());
+
     }
 
     //Sets the tilt to discrete values depending on the current sensor values.

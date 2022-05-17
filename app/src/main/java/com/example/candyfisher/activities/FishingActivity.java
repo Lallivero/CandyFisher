@@ -67,8 +67,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private final boolean orientationMode = true;
 
 
-    float[] values = new float[4];
-    float[] accel = new float[3];
+    float[] values;
+    float[] accel;
 
     private int failSound;
     private int throwSound;
@@ -158,6 +158,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         //Misc
         hasFocus = true;
         tutorialSteps = 0;
+        values = new float[4];
+        accel = new float[3];
 
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
     }
@@ -215,57 +217,61 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             //provides sensor data to model
             if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
                 accel = Utils.lowPassFilter(sensorEvent.values.clone(), accel);
-            else
-                values = Utils.lowPassFilter(sensorEvent.values.clone(), values);
-            model.setValues(values);
-            if ((scaleText.getAnimation() == null || notAnimated || scaleText.getAnimation().hasEnded()) && !model.getCurrentlyFishing() && help) {
-                notAnimated = false;
-                scaleText.setVisibility(View.VISIBLE);
-                scaleText.setText(R.string.scale);
-                scaleText.startAnimation(scaleAnimation);
-            } else if (model.getCurrentlyFishing() && !model.getBite() && help && scaleAnimation.hasEnded()) {
-                scaleText.setVisibility(View.VISIBLE);
-                scaleText.setText("Hold Steady Now!");
-                scaleText.startAnimation(scaleAnimation);
-            }
-            //text animation
-            //If we detect a successful throw, start fishing.
-            if (model.checkSuccessfulThrow()) {
-                if (!help) {
-                    scaleText.setText(encouragements.get(random.nextInt(encouragements.size())));
-                    scaleText.startAnimation(animationSet);
-                } else
-                    scaleText.clearAnimation();
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) {
+                values = sensorEvent.values.clone();
+
+//                values = Utils.lowPassFilter(sensorEvent.values.clone(), values);
+                model.setValues(values);
+                if ((scaleText.getAnimation() == null || notAnimated || scaleText.getAnimation().hasEnded()) && !model.getCurrentlyFishing() && help) {
+                    notAnimated = false;
+                    scaleText.setVisibility(View.VISIBLE);
+                    scaleText.setText(R.string.scale);
+                    scaleText.startAnimation(scaleAnimation);
+                } else if (model.getCurrentlyFishing() && !model.getBite() && help && scaleAnimation.hasEnded()) {
+                    scaleText.setVisibility(View.VISIBLE);
+                    scaleText.setText("Hold Steady Now!");
+                    scaleText.startAnimation(scaleAnimation);
+                }
+                //text animation
+                //If we detect a successful throw, start fishing.
+                if (model.checkSuccessfulThrow()) {
+                    if (!help) {
+                        scaleText.setText(encouragements.get(random.nextInt(encouragements.size())));
+                        scaleText.startAnimation(animationSet);
+                    } else {
+                        scaleText.clearAnimation();
+                    }
 //                scaleText.startAnimation(animationSet);
-                model.startFishing();
-                playSound(throwSound);
-                changeBackground(model.getCurrentlyFishing());
-                //If we catch something successfully register that (Might be some redundancy here)
-            } else if (model.checkSuccessfulCatch()) {
-                model.stopFishing();
-                onCatch();
+                    model.startFishing();
+                    playSound(throwSound);
+                    changeBackground(model.getCurrentlyFishing());
+                    //If we catch something successfully register that (Might be some redundancy here)
+                } else if (model.checkSuccessfulCatch()) {
+                    model.stopFishing();
+                    onCatch();
 
-                //If we fail to catch something after the allotted grace period stop fishing
-            } else if (model.checkFailedCatch() && model.gracePeriod() || suddenMovement() && model.getCurrentlyFishing()) {
-                model.stopFishing();
-                onFailedCatch(0, false);
-            }
+                    //If we fail to catch something after the allotted grace period stop fishing
+                } else if (model.checkFailedCatch() && model.gracePeriod() || suddenMovement() && model.getCurrentlyFishing()) {
+                    model.stopFishing();
+                    onFailedCatch(0, false);
+                }
 
-            //Check if we are eligible for a bite
-            if (model.biteEligible()) {
-                model.bite();
-                playSound(timerSound);
-                //Needs to be asynchronous in order to vibrate three times without locking UI thread
-                AsyncVibration asyncVibration = new AsyncVibration();
-                asyncVibration.execute(asyncTaskParameters);
+                //Check if we are eligible for a bite
+                if (model.biteEligible()) {
+                    model.bite();
+                    playSound(timerSound);
+                    //Needs to be asynchronous in order to vibrate three times without locking UI thread
+                    AsyncVibration asyncVibration = new AsyncVibration();
+                    asyncVibration.execute(asyncTaskParameters);
 
-                scaleText.setText(help ? "Tilt Up!" : "Oh, a Bite!");
-                scaleText.setVisibility(View.VISIBLE);
-                scaleText.startAnimation(animationSet);
+                    scaleText.setText(help ? "Tilt Up!" : "Oh, a Bite!");
+                    scaleText.setVisibility(View.VISIBLE);
+                    scaleText.startAnimation(animationSet);
 
-            } else if (model.pastBiteTime()) {
-                model.stopFishing();
-                onFailedCatch(1, true);
+                } else if (model.pastBiteTime()) {
+                    model.stopFishing();
+                    onFailedCatch(1, true);
+                }
             }
         }
     }
@@ -277,10 +283,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         return Math.abs(x) > 9f;
     }
 
-
     private void tutorialSensorChange(SensorEvent sensorEvent) {
 
-        if (!showingPopup) {
+        if (!showingPopup && sensorEvent.sensor.getType() == Sensor.TYPE_GAME_ROTATION_VECTOR) {
             model.setValues(sensorEvent.values.clone());
             switch (tutorialSteps) {
                 case 0:
@@ -345,9 +350,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     private void onFailedCatch(int i, boolean slow) {
         changeBackground(model.getCurrentlyFishing());
         scaleText.clearAnimation();
-
         playSound(failSound);
-
         if (failPause && slow) {
             int FAILED_CATCH_VALUE = -1;
             showPopUp(FAILED_CATCH_VALUE);
@@ -422,6 +425,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         });
         okButton.setOnClickListener(view -> {
             showingPopup = false;
+//            model.stopFishing();
             dialog.dismiss();
         });
         dialog.show();
