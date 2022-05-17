@@ -2,6 +2,7 @@ package com.example.candyfisher.models;
 
 
 import android.hardware.SensorManager;
+import android.util.Log;
 
 import com.example.candyfisher.utils.Candies;
 import com.example.candyfisher.utils.Fifo;
@@ -107,10 +108,11 @@ public class FishingGameModel {
         Fifo key1 = new Fifo();
         key1.push(Tilt.UPRIGHT);
         key1.push(Tilt.FACEUP);
-        Fifo key2 = new Fifo();
-        key2.push(Tilt.UPSIDEDOWN);
-        key2.push(Tilt.FACEUP);
-        return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
+//        Fifo key2 = new Fifo();
+//        key2.push(Tilt.UPSIDEDOWN);
+//        key2.push(Tilt.FACEUP);
+//        return ((fifo.equals(key2) || fifo.equals(key1)) && !currentlyFishing);
+        return fifo.equals(key1) && !currentlyFishing;
     }
 
     //If the tilt-fifo contains the allowed catch pattern and we have a bite, return true
@@ -144,11 +146,20 @@ public class FishingGameModel {
 
         float tiltSensitivity = 0.5f;
         previousTilt = tilt;
-        if (Math.abs(Math.PI / 2f - Math.abs(orientationValues[1])) < tiltSensitivity) {
+        if (Math.PI / 2f - orientationValues[1] * -1 < tiltSensitivity + 0.25f) {
             tilt = Tilt.UPRIGHT;
-        } else if (Math.abs(orientationValues[1]) < tiltSensitivity) {
+        } else if ((Math.PI / 2f - orientationValues[1] < tiltSensitivity + 0.25f)) {
+            tilt = Tilt.UPSIDEDOWN;
+        } else if ((Math.PI / 2f - Math.abs(orientationValues[2])) < tiltSensitivity) {
+            tilt = Tilt.LEFT;
+        } else if (Math.abs(orientationValues[2]) < tiltSensitivity && (-1 * orientationValues[1]) < tiltSensitivity) {
             tilt = Tilt.FACEUP;
         }
+//        Log.i(TAG, "setTiltRotation: " + tilt);
+//        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[0]));
+//        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[1]));
+//        Log.i(TAG, "setTiltRotation: " + String.valueOf(orientationValues[2]));
+
         if (tilt != previousTilt) {
             fifo.push(tilt);
         }

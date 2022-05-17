@@ -183,9 +183,14 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             reading = false;
             dialog.dismiss();
         });
+
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.setCancelable(false);
+        dialog.setOnCancelListener(dialogInterface -> {
+            reading = false;
+            dialog.dismiss();
+        });
         dialog.show();
     }
 
@@ -203,9 +208,14 @@ public class CollectionActivity extends AppCompatActivity implements NfcAdapter.
             reading = false;
             dialog.dismiss();
         });
+
+        dialog.setOnCancelListener(dialogInterface -> {
+            reading = false;
+            dialog.dismiss();
+        });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.setCancelable(false);
         dialog.show();
     }
 

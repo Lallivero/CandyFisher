@@ -9,7 +9,7 @@ import android.nfc.tech.Ndef;
 import java.io.IOException;
 
 public class Utils {
-    private static final float ALPHA = 0.09f;
+    private static final float ALPHA = 0.9f;
     private static final String LANGUAGE_CODE = "en";
 
     public static float[] lowPassFilter(float[] input, float[] output) {

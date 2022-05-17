@@ -11,14 +11,14 @@
         android:id="@+id/mute_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginTop="10dp"
         android:background="@android:color/transparent"
         android:contentDescription="@string/volume_on_and_off_description"
         android:onClick="muteOnClick"
         android:scaleType="fitCenter"
         android:src="@drawable/ic_round_volume_off_24"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView

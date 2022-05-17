@@ -177,7 +177,6 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
                     collectionViewModel.decrementCollected(myDataCollection.get(itemIndex).getRealIndex());
                     playSound(shareSound);
                 });
-
                 writing = false;
             }
         }
@@ -198,9 +197,14 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             dialog.dismiss();
 
         });
+        dialog.setOnCancelListener(dialogInterface -> {
+            writing = false;
+            dialog.dismiss();
+        });
+
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.setCancelable(false);
         dialog.show();
     }
 
@@ -221,9 +225,14 @@ public class ItemDetailsActivity extends AppCompatActivity implements NfcAdapter
             writing = false;
             dialog.dismiss();
         });
+
+        dialog.setOnCancelListener(dialogInterface -> {
+            writing = false;
+            dialog.dismiss();
+        });
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCanceledOnTouchOutside(false);
-        dialog.setCancelable(false);
+//        dialog.setCanceledOnTouchOutside(false);
+//        dialog.setCancelable(false);
         dialog.show();
     }
 

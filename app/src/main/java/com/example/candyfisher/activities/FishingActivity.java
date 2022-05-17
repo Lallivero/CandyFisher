@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -20,12 +21,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.style.StrikethroughSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +40,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.candyfisher.R;
 import com.example.candyfisher.models.FishingGameModel;
 import com.example.candyfisher.services.MusicSingleton;
+import com.example.candyfisher.utils.Utils;
 import com.example.candyfisher.viewModels.CollectionViewModel;
 
 import java.util.ArrayList;
@@ -61,6 +66,10 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private final boolean orientationMode = true;
 
+
+    float[] values = new float[4];
+    float[] accel =  new float[3];
+
     private int failSound;
     private int throwSound;
     private int successSound;
@@ -71,7 +80,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     private MusicSingleton myMediaPlayer;
     private boolean hasFocus;
-    private boolean showingPopup = false;
+    private boolean showingPopup;
 
     private int tutorialSteps;
     private boolean tutorial = false;
@@ -98,6 +107,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fishing);
+        showLoadingPopUp();
         this.setVolumeControlStream(AudioManager.STREAM_MUSIC);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setup();
@@ -105,7 +115,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         loadSound();
         setupAnimations();
         createStringLists();
-        showLoadingPopUp();
+
     }
 
     private void createStringLists() {
@@ -117,13 +127,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         tooSlow.add("Need to be Faster!");
         tooSlow.add("Too Slow!");
 
-        tooFast.add("Too Soon!");
-        tooFast.add("Slow Down!");
+        tooFast.add("Keep at it!");
+        tooFast.add("Practice makes\nPerfect!");
         tooFast.add("Hold Steady!");
     }
 
     private void setupAnimations() {
         scaleText = findViewById(R.id.scaleText);
+        scaleText.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
         scaleAnimation = AnimationUtils.loadAnimation(this, R.anim.scale);
         fadeOutAnimation = AnimationUtils.loadAnimation(this, R.anim.fade);
         animationSet = new AnimationSet(true);
@@ -147,23 +158,23 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         //Misc
         hasFocus = true;
         tutorialSteps = 0;
-        createTime = System.currentTimeMillis();
+
         asyncTaskParameters = new AsyncTaskParameters(3, 250, 200, (Vibrator) getSystemService(VIBRATOR_SERVICE));
     }
 
     private void loadSensors() {
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (orientationMode) {
-            orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
-            if (orientationVector == null) {
-                Toast.makeText(this, "Orientation Vector not found", Toast.LENGTH_SHORT).show();
-            }
-            sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
-
-        } else {
-            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+//        if (orientationMode) {
+        orientationVector = sensorManager.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
+        if (orientationVector == null) {
+            Toast.makeText(this, "Orientation Vector not found", Toast.LENGTH_SHORT).show();
         }
+        sensorManager.registerListener(this, orientationVector, SensorManager.SENSOR_DELAY_GAME);
+
+//        } else {
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+//        }
     }
 
     private void loadSound() {
@@ -197,13 +208,16 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     }
 
     private void normalSensorChange(SensorEvent sensorEvent) {
-
-        if(System.currentTimeMillis() - createTime > 2500){
+        if (System.currentTimeMillis() - createTime > 3000) {
             loadingDialog.dismiss();
         }
-        if (!showingPopup) {
+        if (!showingPopup && !isLoading) {
             //provides sensor data to model
-            model.setValues(sensorEvent.values.clone());
+            if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+                accel = Utils.lowPassFilter(sensorEvent.values.clone(), accel);
+            else
+                values = Utils.lowPassFilter(sensorEvent.values.clone(), values);
+            model.setValues(values);
             if ((scaleText.getAnimation() == null || notAnimated || scaleText.getAnimation().hasEnded()) && !model.getCurrentlyFishing() && help) {
                 notAnimated = false;
                 scaleText.setVisibility(View.VISIBLE);
@@ -232,10 +246,9 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 onCatch();
 
                 //If we fail to catch something after the allotted grace period stop fishing
-            } else if (model.checkFailedCatch() && model.gracePeriod()) {
+            } else if (model.checkFailedCatch() && model.gracePeriod() || model.getBite() && suddenMovement()) {
                 model.stopFishing();
                 onFailedCatch(0, false);
-
             }
 
             //Check if we are eligible for a bite
@@ -256,6 +269,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             }
         }
     }
+
+    private boolean suddenMovement(){
+        float x = accel[0];
+//        float y = accel[1];
+//        return Math.sqrt(x*x + y*y) > 5f;
+        return Math.abs(x) > 5f;
+    }
+
 
     private void tutorialSensorChange(SensorEvent sensorEvent) {
 
@@ -331,7 +352,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             int FAILED_CATCH_VALUE = -1;
             showPopUp(FAILED_CATCH_VALUE);
             scaleText.setVisibility(View.INVISIBLE);
-        }else if(failPause){
+        } else if (failPause) {
             int FAILED_CATCH_VALUE = -2;
             showPopUp(FAILED_CATCH_VALUE);
             scaleText.setVisibility(View.INVISIBLE);
@@ -379,7 +400,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
             textView.setText("Hold it steady!");
             imageView.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
             imageView.setImageResource(R.drawable.cross);
-        }else{
+        } else {
             imageView.setImageResource(myCollectionViewModel.getImageId(catchIndex));
 
             textView.setText(String.format("%s %s!", getString(R.string.catchDialogText), myCollectionViewModel.getItemDescription(catchIndex)));
@@ -407,7 +428,6 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
     }
 
-
     private void showOptionsPopUp() {
         showingPopup = true;
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_options, null);
@@ -416,28 +436,87 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         final AlertDialog dialog = alert.create();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        Button pauseOnFail = alertCustomDialog.findViewById(R.id.check_fail_pause);
-        Button helpText = alertCustomDialog.findViewById(R.id.check_help_text);
-        Button tutorial_button = alertCustomDialog.findViewById(R.id.check_tutorial);
+        CheckBox pauseOnFail = alertCustomDialog.findViewById(R.id.check_fail_pause);
+        CheckBox helpText = alertCustomDialog.findViewById(R.id.check_help_text);
+        CheckBox tutorial_button = alertCustomDialog.findViewById(R.id.check_tutorial);
+        Button ok_button = alertCustomDialog.findViewById(R.id.options_button_close);
         if (failPause)
-            pauseOnFail.performClick();
+            pauseOnFail.setChecked(true);
         if (help)
-            helpText.performClick();
+            helpText.setChecked(true);
         if (tutorial)
-            tutorial_button.performClick();
+            tutorial_button.setChecked(true);
 
         pauseOnFail.setOnClickListener(view -> {
             failPause = !failPause;
+            if (tutorial) {
+                tutorial = false;
+                tutorial_button.setChecked(false);
+                if ((!helpText.getPaint().isStrikeThruText() || !pauseOnFail.getPaint().isStrikeThruText())) {
+                    helpText.setPaintFlags(helpText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                } else {
+                    helpText.setPaintFlags(helpText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                }
+
+            }
+            if (failPause && !tutorial_button.getPaint().isStrikeThruText()) {
+                tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else if (!help) {
+                tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            }
+
         });
         helpText.setOnClickListener(view -> {
             help = !help;
+            if (tutorial) {
+                tutorial = false;
+                tutorial_button.setChecked(false);
+                if ((!helpText.getPaint().isStrikeThruText() || !pauseOnFail.getPaint().isStrikeThruText())) {
+                    helpText.setPaintFlags(helpText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                    pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                } else {
+                    helpText.setPaintFlags(helpText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                    pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                }
+            }
+            if (help && !tutorial_button.getPaint().isStrikeThruText()) {
+                tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else if (!failPause) {
+                tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            }
             scaleText.clearAnimation();
             scaleText.setVisibility(View.INVISIBLE);
         });
         tutorial_button.setOnClickListener(view -> {
+
+            help = false;
+            helpText.setChecked(false);
+            failPause = false;
+            pauseOnFail.setChecked(false);
+
+            tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+
+
+            if ((!helpText.getPaint().isStrikeThruText() || !pauseOnFail.getPaint().isStrikeThruText()) && !tutorial) {
+                helpText.setPaintFlags(helpText.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+                pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+            } else {
+                helpText.setPaintFlags(helpText.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+                pauseOnFail.setPaintFlags(pauseOnFail.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+            }
+
+
             tutorialSteps = 0;
             tutorial = !tutorial;
         });
+
+        ok_button.setOnClickListener(view -> {
+            showingPopup = false;
+            dialog.dismiss();
+        });
+
         dialog.setOnDismissListener(dialogInterface -> {
             showingPopup = false;
         });
@@ -466,7 +545,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
     }
 
     private void showLoadingPopUp() {
-        showingPopup = true;
+        isLoading = true;
+        createTime = System.currentTimeMillis();
         View alertCustomDialog = LayoutInflater.from(this).inflate(R.layout.dialog_layout_loading, null);
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
         alert.setView(alertCustomDialog);
@@ -475,7 +555,8 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         loadingDialog.setCancelable(false);
         loadingDialog.setCanceledOnTouchOutside(false);
         loadingDialog.setOnDismissListener(dialogInterface -> {
-            showingPopup = false;
+            Log.i(TAG, "showLoadingPopUp: here now");
+            isLoading = false;
         });
         loadingDialog.show();
     }
@@ -529,7 +610,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 if (currentTime - previousTime > parameters[0].vibrationDelay) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         parameters[0].vibrator.vibrate(VibrationEffect.createOneShot(parameters[0].vibrationDuration, VibrationEffect.DEFAULT_AMPLITUDE));
-                    }else {
+                    } else {
                         parameters[0].vibrator.vibrate(parameters[0].vibrationDuration);
                     }
                     previousTime = currentTime;
