@@ -68,7 +68,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
 
 
     float[] values = new float[4];
-    float[] accel =  new float[3];
+    float[] accel = new float[3];
 
     private int failSound;
     private int throwSound;
@@ -213,7 +213,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         }
         if (!showingPopup && !isLoading) {
             //provides sensor data to model
-            if(sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
                 accel = Utils.lowPassFilter(sensorEvent.values.clone(), accel);
             else
                 values = Utils.lowPassFilter(sensorEvent.values.clone(), values);
@@ -270,7 +270,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         }
     }
 
-    private boolean suddenMovement(){
+    private boolean suddenMovement() {
         float x = accel[0];
 //        float y = accel[1];
 //        return Math.sqrt(x*x + y*y) > 5f;
