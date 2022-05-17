@@ -246,7 +246,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
                 onCatch();
 
                 //If we fail to catch something after the allotted grace period stop fishing
-            } else if (model.checkFailedCatch() && model.gracePeriod() || model.getBite() && suddenMovement()) {
+            } else if (model.checkFailedCatch() && model.gracePeriod() || suddenMovement() && model.getCurrentlyFishing()) {
                 model.stopFishing();
                 onFailedCatch(0, false);
             }
@@ -274,7 +274,7 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         float x = accel[0];
 //        float y = accel[1];
 //        return Math.sqrt(x*x + y*y) > 5f;
-        return Math.abs(x) > 5f;
+        return Math.abs(x) > 9f;
     }
 
 
