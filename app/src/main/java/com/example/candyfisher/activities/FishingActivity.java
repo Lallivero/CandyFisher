@@ -440,10 +440,14 @@ public class FishingActivity extends AppCompatActivity implements SensorEventLis
         CheckBox helpText = alertCustomDialog.findViewById(R.id.check_help_text);
         CheckBox tutorial_button = alertCustomDialog.findViewById(R.id.check_tutorial);
         Button ok_button = alertCustomDialog.findViewById(R.id.options_button_close);
-        if (failPause)
+        if (failPause) {
             pauseOnFail.setChecked(true);
-        if (help)
+            tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+        if (help) {
             helpText.setChecked(true);
+            tutorial_button.setPaintFlags(tutorial_button.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
         if (tutorial)
             tutorial_button.setChecked(true);
 
